@@ -7,6 +7,33 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
   );
 
+  // Fetch distinct cities for city pages
+  const cityEntries: MetadataRoute.Sitemap = [];
+  const citySet = new Set<string>();
+  let cityPage = 0;
+  while (true) {
+    const { data: cityData } = await supabase
+      .from("clubs")
+      .select("city")
+      .not("city", "is", null)
+      .order("city")
+      .range(cityPage * 1000, (cityPage + 1) * 1000 - 1);
+    if (!cityData || cityData.length === 0) break;
+    for (const row of cityData) {
+      if (row.city) citySet.add(row.city);
+    }
+    cityPage++;
+  }
+  for (const city of citySet) {
+    const slug = city.toLowerCase().replace(/\s+/g, "-");
+    cityEntries.push({
+      url: `https://rollmap.co/city/${encodeURIComponent(slug)}`,
+      lastModified: new Date().toISOString(),
+      changeFrequency: "weekly",
+      priority: 0.8,
+    });
+  }
+
   // Fetch all club IDs in batches
   const clubEntries: MetadataRoute.Sitemap = [];
   let page = 0;
@@ -45,6 +72,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: "weekly",
       priority: 0.8,
     },
+    ...cityEntries,
     ...clubEntries,
   ];
 }

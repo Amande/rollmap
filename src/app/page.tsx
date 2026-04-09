@@ -44,7 +44,7 @@ export default function Home() {
         </div>
 
         {/* Map preview */}
-        <div className="w-full max-w-[700px] h-[280px] rounded-[10px] overflow-hidden mt-9 border border-bg3">
+        <div className="w-full max-w-[700px] h-[160px] sm:h-[280px] rounded-[10px] overflow-hidden mt-9 border border-bg3 touch-none">
           <LandingMap />
         </div>
 
@@ -53,7 +53,7 @@ export default function Home() {
           {POPULAR_CITIES.map((city) => (
             <a
               key={city}
-              href={`/search?q=${encodeURIComponent(city)}`}
+              href={`/city/${city.toLowerCase().replace(/\s+/g, "-")}`}
               className="bg-bg3 text-text2 px-3.5 py-1.5 rounded-full text-xs cursor-pointer transition-all border border-transparent hover:border-accent hover:text-accent"
             >
               {city}

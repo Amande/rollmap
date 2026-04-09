@@ -24,6 +24,21 @@ export default function ClubDetail({ club: initialClub }: ClubDetailProps) {
   const [club, setClub] = useState<Club>(initialClub);
   const [showSuggest, setShowSuggest] = useState(false);
   const [trained, setTrained] = useState(false);
+  const [shared, setShared] = useState(false);
+
+  const handleShare = async () => {
+    const url = `https://rollmap.co/club/${club.id}`;
+    const text = `${club.name} — BJJ in ${club.city || club.country}`;
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: text, url });
+      } catch {}
+    } else {
+      await navigator.clipboard.writeText(url);
+      setShared(true);
+      setTimeout(() => setShared(false), 2000);
+    }
+  };
   const hasContact = club.phone || club.email || club.website || club.instagram;
   const hasLocation = club.lat && club.lng;
   const googleMapsUrl = GoogleMapsUrl(club);
@@ -252,6 +267,13 @@ export default function ClubDetail({ club: initialClub }: ClubDetailProps) {
                 className="w-full py-3 rounded-xl bg-accent text-bg font-bold text-sm cursor-pointer transition-colors hover:bg-accent2"
               >
                 Suggest an edit
+              </button>
+              <button
+                onClick={handleShare}
+                className="w-full py-3 rounded-xl bg-bg2 text-text2 font-bold text-sm cursor-pointer transition-colors hover:bg-bg3 border border-bg3 flex items-center justify-center gap-2"
+              >
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+                {shared ? "Link copied!" : "Share this gym"}
               </button>
               <button
                 onClick={async () => {
