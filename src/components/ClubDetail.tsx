@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Club } from "@/lib/types";
+import { supabase } from "@/lib/supabase";
 import MapDynamic from "./MapDynamic";
 import SuggestEditModal from "./SuggestEditModal";
 
@@ -22,6 +23,7 @@ function GoogleMapsUrl(club: Club): string {
 export default function ClubDetail({ club: initialClub }: ClubDetailProps) {
   const [club, setClub] = useState<Club>(initialClub);
   const [showSuggest, setShowSuggest] = useState(false);
+  const [trained, setTrained] = useState(false);
   const hasContact = club.phone || club.email || club.website || club.instagram;
   const hasLocation = club.lat && club.lng;
   const googleMapsUrl = GoogleMapsUrl(club);
@@ -251,8 +253,23 @@ export default function ClubDetail({ club: initialClub }: ClubDetailProps) {
               >
                 Suggest an edit
               </button>
-              <button className="w-full py-3 rounded-xl bg-bg2 text-text2 font-bold text-sm cursor-pointer transition-colors hover:bg-bg3 border border-bg3">
-                I&apos;ve trained here
+              <button
+                onClick={async () => {
+                  if (trained) return;
+                  setTrained(true);
+                  await supabase.from("club_suggestions").insert([{
+                    club_id: club.id,
+                    comment: "I've trained here",
+                    status: "approved",
+                  }]);
+                }}
+                className={`w-full py-3 rounded-xl font-bold text-sm cursor-pointer transition-colors border ${
+                  trained
+                    ? "bg-accent/15 text-accent border-accent"
+                    : "bg-bg2 text-text2 border-bg3 hover:bg-bg3"
+                }`}
+              >
+                {trained ? "🤙 You've trained here!" : "I've trained here"}
               </button>
             </div>
 

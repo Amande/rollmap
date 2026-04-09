@@ -22,17 +22,21 @@ export default function SearchBar({
   className = "",
 }: SearchBarProps) {
   const [query, setQuery] = useState(defaultValue);
-
-  // Sync input value when URL changes (e.g. navigating from search results)
-  useEffect(() => {
-    setQuery(defaultValue);
-  }, [defaultValue]);
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(-1);
+  const isUserTypingRef = useRef(false);
   const router = useRouter();
   const wrapperRef = useRef<HTMLDivElement>(null);
   const debounceRef = useRef<NodeJS.Timeout>(undefined);
+
+  // Sync input value when URL changes — don't trigger autocomplete
+  useEffect(() => {
+    isUserTypingRef.current = false;
+    setQuery(defaultValue);
+    setShowSuggestions(false);
+    setSuggestions([]);
+  }, [defaultValue]);
 
   // Close dropdown on outside click
   useEffect(() => {
@@ -45,11 +49,11 @@ export default function SearchBar({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // Fetch suggestions on input change
+  // Fetch suggestions on input change (only when user is typing)
   useEffect(() => {
     if (debounceRef.current) clearTimeout(debounceRef.current);
 
-    if (query.trim().length < 2) {
+    if (!isUserTypingRef.current || query.trim().length < 2) {
       setSuggestions([]);
       setShowSuggestions(false);
       return;
@@ -151,7 +155,7 @@ export default function SearchBar({
         <input
           type="text"
           value={query}
-          onChange={(e) => setQuery(e.target.value)}
+          onChange={(e) => { isUserTypingRef.current = true; setQuery(e.target.value); }}
           onFocus={() => suggestions.length > 0 && setShowSuggestions(true)}
           onKeyDown={handleKeyDown}
           placeholder="Search a city, country, or club name..."

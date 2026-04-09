@@ -128,7 +128,7 @@ export default function SuggestEditModal({
           <div className="text-3xl mb-3">&#10003;</div>
           <h3 className="text-lg font-bold text-text mb-2">Thanks!</h3>
           <p className="text-text3 text-sm mb-6">
-            Your suggestion for <span className="text-text font-semibold">{club.name}</span> has been submitted. We&apos;ll review it soon.
+            Your info for <span className="text-text font-semibold">{club.name}</span> has been added. The community thanks you!
           </p>
           <button
             onClick={onClose}
