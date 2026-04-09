@@ -1,0 +1,89 @@
+@import "tailwindcss";
+
+@theme {
+  --color-bg: #0f1117;
+  --color-bg2: #1a1d27;
+  --color-bg3: #242836;
+  --color-bg4: #2e3345;
+  --color-text: #e8eaf0;
+  --color-text2: #9ca3b4;
+  --color-text3: #6b7280;
+  --color-accent: #22d3a7;
+  --color-accent2: #1ab892;
+  --color-accent-bg: rgba(34, 211, 167, 0.12);
+  --color-badge-gi-bg: rgba(59, 130, 246, 0.15);
+  --color-badge-gi: #60a5fa;
+  --color-badge-nogi-bg: rgba(168, 85, 247, 0.15);
+  --color-badge-nogi: #c084fc;
+  --color-badge-openmat-bg: rgba(245, 158, 11, 0.15);
+  --color-badge-openmat: #fbbf24;
+  --font-family-sans: "Inter", system-ui, -apple-system, sans-serif;
+}
+
+/* Leaflet overrides for dark theme */
+.leaflet-container {
+  background: #242836;
+}
+
+.leaflet-popup-content-wrapper {
+  background: #1a1d27;
+  color: #e8eaf0;
+  border-radius: 10px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+}
+
+.leaflet-popup-tip {
+  background: #1a1d27;
+}
+
+.leaflet-popup-content {
+  margin: 12px 16px;
+  font-family: "Inter", system-ui, -apple-system, sans-serif;
+}
+
+.leaflet-popup-content a {
+  color: #22d3a7;
+}
+
+/* Marker cluster overrides */
+.marker-cluster-small {
+  background-color: rgba(34, 211, 167, 0.3);
+}
+.marker-cluster-small div {
+  background-color: rgba(34, 211, 167, 0.6);
+  color: #fff;
+  font-weight: 700;
+  font-family: "Inter", system-ui, sans-serif;
+}
+
+.marker-cluster-medium {
+  background-color: rgba(34, 211, 167, 0.4);
+}
+.marker-cluster-medium div {
+  background-color: rgba(34, 211, 167, 0.7);
+  color: #fff;
+  font-weight: 700;
+  font-family: "Inter", system-ui, sans-serif;
+}
+
+.marker-cluster-large {
+  background-color: rgba(34, 211, 167, 0.5);
+}
+.marker-cluster-large div {
+  background-color: rgba(34, 211, 167, 0.8);
+  color: #fff;
+  font-weight: 700;
+  font-family: "Inter", system-ui, sans-serif;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #0f1117;
+}
+::-webkit-scrollbar-thumb {
+  background: #2e3345;
+  border-radius: 3px;
+}
