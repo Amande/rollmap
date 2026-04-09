@@ -9,6 +9,6 @@ export default function robots(): MetadataRoute.Robots {
         disallow: ["/api/"],
       },
     ],
-    sitemap: "https://rollmap.vercel.app/sitemap.xml",
+    sitemap: "https://rollmap.co/sitemap.xml",
   };
 }

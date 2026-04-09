@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://rollmap.vercel.app"),
+  metadataBase: new URL("https://rollmap.co"),
   title: {
     default: "RollMap — Find BJJ gyms to train, anywhere.",
     template: "%s | RollMap",

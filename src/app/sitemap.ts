@@ -22,7 +22,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
     for (const club of data) {
       clubEntries.push({
-        url: `https://rollmap.vercel.app/club/${club.id}`,
+        url: `https://rollmap.co/club/${club.id}`,
         lastModified: club.updated_at || new Date().toISOString(),
         changeFrequency: "monthly",
         priority: 0.7,
@@ -34,13 +34,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   return [
     {
-      url: "https://rollmap.vercel.app",
+      url: "https://rollmap.co",
       lastModified: new Date().toISOString(),
       changeFrequency: "weekly",
       priority: 1,
     },
     {
-      url: "https://rollmap.vercel.app/search",
+      url: "https://rollmap.co/search",
       lastModified: new Date().toISOString(),
       changeFrequency: "weekly",
       priority: 0.8,
