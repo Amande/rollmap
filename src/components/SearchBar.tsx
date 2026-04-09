@@ -32,7 +32,7 @@ export default function SearchBar({
   const [selectedIndex, setSelectedIndex] = useState(-1);
   const router = useRouter();
   const wrapperRef = useRef<HTMLDivElement>(null);
-  const debounceRef = useRef<NodeJS.Timeout>();
+  const debounceRef = useRef<NodeJS.Timeout>(undefined);
 
   // Close dropdown on outside click
   useEffect(() => {
