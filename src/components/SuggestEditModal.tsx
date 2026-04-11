@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { supabase } from "@/lib/supabase";
 import { Club } from "@/lib/types";
 
 interface SuggestEditModalProps {
@@ -66,58 +65,50 @@ export default function SuggestEditModal({
     setSubmitting(true);
     setError(null);
 
-    // Build update payload for the club (only non-null fields)
-    const clubUpdate: Record<string, unknown> = {};
-    if (form.kids_friendly !== null) clubUpdate.kids_friendly = form.kids_friendly;
-    if (form.gi !== null) clubUpdate.gi = form.gi;
-    if (form.nogi !== null) clubUpdate.nogi = form.nogi;
-    if (form.open_mat !== null) clubUpdate.open_mat = form.open_mat;
-    if (form.drop_in !== null) clubUpdate.drop_in = form.drop_in;
-    if (form.drop_in_price.trim()) clubUpdate.drop_in_price = form.drop_in_price.trim();
-    if (form.schedule_notes.trim()) clubUpdate.schedule_notes = form.schedule_notes.trim();
-    if (form.website.trim()) clubUpdate.website = form.website.trim();
-    if (form.instagram.trim()) clubUpdate.instagram = form.instagram.trim();
+    // Build suggestion payload
+    const payload: Record<string, unknown> = { club_id: club.id };
+    if (form.kids_friendly !== null) payload.kids_friendly = form.kids_friendly;
+    if (form.gi !== null) payload.gi = form.gi;
+    if (form.nogi !== null) payload.nogi = form.nogi;
+    if (form.open_mat !== null) payload.open_mat = form.open_mat;
+    if (form.drop_in !== null) payload.drop_in = form.drop_in;
+    if (form.drop_in_price.trim()) payload.drop_in_price = form.drop_in_price.trim();
+    if (form.schedule_notes.trim()) payload.schedule_notes = form.schedule_notes.trim();
+    if (form.website.trim()) payload.website = form.website.trim();
+    if (form.instagram.trim()) payload.instagram = form.instagram.trim();
+    if (form.comment.trim()) payload.comment = form.comment.trim();
 
-    // 1. Apply changes directly to the club
-    let applyError = null;
-    if (Object.keys(clubUpdate).length > 0) {
-      const { error } = await supabase
-        .from("clubs")
-        .update(clubUpdate)
-        .eq("id", club.id);
-      applyError = error;
+    try {
+      const res = await fetch("/api/suggest", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error || "Failed to submit");
+      }
+    } catch (err) {
+      setSubmitting(false);
+      setError(err instanceof Error ? err.message : "Failed to submit. Try again.");
+      return;
     }
 
-    // 2. Also log the suggestion for history / audit
-    const logPayload: Record<string, unknown> = {
-      club_id: club.id,
-      status: "approved",
-    };
-    if (form.kids_friendly !== null) logPayload.kids_friendly = form.kids_friendly;
-    if (form.adults_only !== null) logPayload.adults_only = form.adults_only;
-    if (form.gi !== null) logPayload.gi = form.gi;
-    if (form.nogi !== null) logPayload.nogi = form.nogi;
-    if (form.open_mat !== null) logPayload.open_mat = form.open_mat;
-    if (form.drop_in !== null) logPayload.drop_in = form.drop_in;
-    if (form.drop_in_price.trim()) logPayload.drop_in_price = form.drop_in_price.trim();
-    if (form.schedule_notes.trim()) logPayload.schedule_notes = form.schedule_notes.trim();
-    if (form.website.trim()) logPayload.website = form.website.trim();
-    if (form.instagram.trim()) logPayload.instagram = form.instagram.trim();
-    if (form.comment.trim()) logPayload.comment = form.comment.trim();
-
-    await supabase.from("club_suggestions").insert([logPayload]);
-
     setSubmitting(false);
-
-    if (applyError) {
-      setError("Failed to submit. Try again.");
-      console.error(applyError);
-    } else {
-      setSubmitted(true);
-      // Notify parent to update UI immediately
-      if (onUpdated) {
-        onUpdated(clubUpdate as Partial<Club>);
-      }
+    setSubmitted(true);
+    if (onUpdated) {
+      const updates: Partial<Club> = {};
+      if (form.kids_friendly !== null) updates.kids_friendly = form.kids_friendly;
+      if (form.gi !== null) updates.gi = form.gi;
+      if (form.nogi !== null) updates.nogi = form.nogi;
+      if (form.open_mat !== null) updates.open_mat = form.open_mat;
+      if (form.drop_in !== null) updates.drop_in = form.drop_in;
+      if (form.drop_in_price.trim()) updates.drop_in_price = form.drop_in_price.trim();
+      if (form.schedule_notes.trim()) updates.schedule_notes = form.schedule_notes.trim();
+      if (form.website.trim()) updates.website = form.website.trim();
+      if (form.instagram.trim()) updates.instagram = form.instagram.trim();
+      onUpdated(updates);
     }
   };
 

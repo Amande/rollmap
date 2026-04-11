@@ -2,12 +2,34 @@
 
 import { useState } from "react";
 import { Club } from "@/lib/types";
-import { supabase } from "@/lib/supabase";
 import MapDynamic from "./MapDynamic";
 import SuggestEditModal from "./SuggestEditModal";
 
 interface ClubDetailProps {
   club: Club;
+}
+
+function isValidWebUrl(str: string): boolean {
+  try {
+    const url = new URL(str.startsWith("http") ? str : `https://${str}`);
+    return (url.protocol === "http:" || url.protocol === "https:") && url.hostname.includes(".");
+  } catch {
+    return false;
+  }
+}
+
+function safeWebUrl(str: string): string | null {
+  if (!isValidWebUrl(str)) return null;
+  return str.startsWith("http") ? str : `https://${str}`;
+}
+
+function safeInstagramUrl(handle: string): string | null {
+  if (handle.startsWith("http")) return isValidWebUrl(handle) ? handle : null;
+  const clean = handle.replace("@", "").trim();
+  if (/^[a-zA-Z0-9._]{1,30}$/.test(clean)) {
+    return `https://instagram.com/${clean}`;
+  }
+  return null;
 }
 
 function GoogleMapsUrl(club: Club): string {
@@ -24,19 +46,29 @@ export default function ClubDetail({ club: initialClub }: ClubDetailProps) {
   const [club, setClub] = useState<Club>(initialClub);
   const [showSuggest, setShowSuggest] = useState(false);
   const [trained, setTrained] = useState(false);
+  const [trainingLoading, setTrainingLoading] = useState(false);
   const [shared, setShared] = useState(false);
 
   const handleShare = async () => {
     const url = `https://rollmap.co/club/${club.id}`;
     const text = `${club.name} — BJJ in ${club.city || club.country}`;
-    if (navigator.share) {
-      try {
+    try {
+      if (navigator.share) {
         await navigator.share({ title: text, url });
-      } catch {}
-    } else {
-      await navigator.clipboard.writeText(url);
-      setShared(true);
-      setTimeout(() => setShared(false), 2000);
+      } else {
+        await navigator.clipboard.writeText(url);
+        setShared(true);
+        setTimeout(() => setShared(false), 2000);
+      }
+    } catch {
+      // Fallback: prompt user to copy manually
+      try {
+        await navigator.clipboard.writeText(url);
+        setShared(true);
+        setTimeout(() => setShared(false), 2000);
+      } catch {
+        window.prompt("Copy this link:", url);
+      }
     }
   };
   const hasContact = club.phone || club.email || club.website || club.instagram;
@@ -204,9 +236,9 @@ export default function ClubDetail({ club: initialClub }: ClubDetailProps) {
                   Contact
                 </h4>
                 <div className="space-y-3">
-                  {club.website && (
+                  {club.website && safeWebUrl(club.website) && (
                     <a
-                      href={club.website.startsWith("http") ? club.website : `https://${club.website}`}
+                      href={safeWebUrl(club.website)!}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="flex items-center gap-3 text-sm text-text hover:text-accent transition-colors group"
@@ -217,13 +249,9 @@ export default function ClubDetail({ club: initialClub }: ClubDetailProps) {
                       <span className="truncate">Website</span>
                     </a>
                   )}
-                  {club.instagram && (
+                  {club.instagram && safeInstagramUrl(club.instagram) && (
                     <a
-                      href={
-                        club.instagram.startsWith("http")
-                          ? club.instagram
-                          : `https://instagram.com/${club.instagram.replace("@", "")}`
-                      }
+                      href={safeInstagramUrl(club.instagram)!}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="flex items-center gap-3 text-sm text-text hover:text-accent transition-colors group"
@@ -277,21 +305,26 @@ export default function ClubDetail({ club: initialClub }: ClubDetailProps) {
               </button>
               <button
                 onClick={async () => {
-                  if (trained) return;
-                  setTrained(true);
-                  await supabase.from("club_suggestions").insert([{
-                    club_id: club.id,
-                    comment: "I've trained here",
-                    status: "approved",
-                  }]);
+                  if (trained || trainingLoading) return;
+                  setTrainingLoading(true);
+                  try {
+                    const res = await fetch("/api/suggest", {
+                      method: "POST",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({ club_id: club.id, type: "trained" }),
+                    });
+                    if (res.ok) setTrained(true);
+                  } catch {}
+                  setTrainingLoading(false);
                 }}
+                disabled={trainingLoading}
                 className={`w-full py-3 rounded-xl font-bold text-sm cursor-pointer transition-colors border ${
                   trained
                     ? "bg-accent/15 text-accent border-accent"
                     : "bg-bg2 text-text2 border-bg3 hover:bg-bg3"
-                }`}
+                } disabled:opacity-50`}
               >
-                {trained ? "🤙 You've trained here!" : "I've trained here"}
+                {trainingLoading ? "Saving..." : trained ? "You've trained here!" : "I've trained here"}
               </button>
             </div>
 

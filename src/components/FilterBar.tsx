@@ -21,7 +21,7 @@ export default function FilterBar({ filters, onChange }: FilterBarProps) {
   };
 
   return (
-    <div className="flex gap-2 px-4 py-3 overflow-x-auto bg-bg2 border-b border-bg3">
+    <div className="flex gap-2 px-4 py-3 overflow-x-auto bg-bg2 border-b border-bg3 sticky top-0 z-40">
       {FILTER_OPTIONS.map(({ key, label }) => {
         const active = !!filters[key];
         return (
