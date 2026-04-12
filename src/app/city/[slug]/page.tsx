@@ -114,11 +114,6 @@ export default async function CityPage({ params }: CityPageProps) {
       <main className="flex-1">
         <CityContent clubs={clubs} city={city} />
       </main>
-
-      {/* Footer */}
-      <footer className="text-center py-4 text-text3 text-xs border-t border-bg3">
-        RollMap — Find BJJ gyms to train, anywhere.
-      </footer>
     </div>
   );
 }

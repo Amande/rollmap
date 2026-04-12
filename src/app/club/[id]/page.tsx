@@ -99,11 +99,6 @@ export default async function ClubPage({ params }: ClubPageProps) {
       <main className="flex-1">
         <ClubDetail club={club} />
       </main>
-
-      {/* Footer */}
-      <footer className="text-center py-4 text-text3 text-xs border-t border-bg3">
-        RollMap MVP -- Data may be outdated. Help us improve it!
-      </footer>
     </div>
   );
 }

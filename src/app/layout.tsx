@@ -65,8 +65,30 @@ export default function RootLayout({
           href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css"
         />
       </head>
-      <body className="bg-bg text-text font-sans min-h-screen antialiased">
-        {children}
+      <body className="bg-bg text-text font-sans min-h-screen antialiased flex flex-col">
+        <div className="flex-1">{children}</div>
+        <footer className="text-center py-5 text-text3 text-xs border-t border-bg3 space-y-2">
+          <p>RollMap — Find BJJ gyms to train, anywhere.</p>
+          <div className="flex items-center justify-center gap-4">
+            <a
+              href="https://twitter.com/O_Amande"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-accent transition-colors"
+            >
+              Twitter
+            </a>
+            <span className="text-bg4">·</span>
+            <a
+              href="https://forms.gle/H78qhnMWuXmrHxnA6"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-accent transition-colors"
+            >
+              Share feedback
+            </a>
+          </div>
+        </footer>
       </body>
     </html>
   );

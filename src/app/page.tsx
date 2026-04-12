@@ -61,12 +61,6 @@ export default function Home() {
           ))}
         </div>
       </main>
-
-      {/* Footer */}
-      <footer className="text-center py-4 text-text3 text-xs border-t border-bg3">
-        RollMap MVP -- Data from CFJJB, 10th Planet, BJJ Globetrotters &amp;
-        more.
-      </footer>
     </div>
   );
 }
