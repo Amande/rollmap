@@ -1,6 +1,33 @@
+import type { Metadata } from "next";
 import SearchBar from "@/components/SearchBar";
 import NearMeButton from "@/components/NearMeButton";
 import LandingMap from "./LandingMap";
+
+export const metadata: Metadata = {
+  alternates: { canonical: "/" },
+};
+
+const jsonLd = [
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    name: "RollMap",
+    url: "https://rollmap.co",
+    description: "Find Brazilian Jiu-Jitsu gyms to train anywhere in the world.",
+    potentialAction: {
+      "@type": "SearchAction",
+      target: "https://rollmap.co/search?q={search_term_string}",
+      "query-input": "required name=search_term_string",
+    },
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    name: "RollMap",
+    url: "https://rollmap.co",
+    sameAs: ["https://twitter.com/O_Amande"],
+  },
+];
 
 const POPULAR_CITIES = [
   "Paris",
@@ -15,9 +42,32 @@ const POPULAR_CITIES = [
   "San Diego",
 ];
 
+const POPULAR_COUNTRIES = [
+  { name: "Brazil", clubs: "4700+" },
+  { name: "United States", clubs: "2100+" },
+  { name: "France", clubs: "680+" },
+  { name: "Japan", clubs: "290+" },
+  { name: "United Kingdom", clubs: "260+" },
+  { name: "Canada", clubs: "200+" },
+  { name: "Australia", clubs: "190+" },
+  { name: "Portugal", clubs: "180+" },
+  { name: "Spain", clubs: "180+" },
+  { name: "South Korea", clubs: "130+" },
+  { name: "Italy", clubs: "100+" },
+  { name: "Germany", clubs: "80+" },
+];
+
 export default function Home() {
   return (
     <div className="min-h-screen flex flex-col">
+      {jsonLd.map((ld, i) => (
+        <script
+          key={i}
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(ld) }}
+        />
+      ))}
+
       {/* Header */}
       <header className="flex items-center justify-between px-5 py-4 bg-bg2 border-b border-bg3">
         <div className="text-xl font-extrabold tracking-tight">
@@ -48,17 +98,40 @@ export default function Home() {
           <LandingMap />
         </div>
 
-        {/* Popular tags */}
-        <div className="flex gap-2.5 flex-wrap justify-center mt-8">
-          {POPULAR_CITIES.map((city) => (
-            <a
-              key={city}
-              href={`/city/${city.toLowerCase().replace(/\s+/g, "-")}`}
-              className="bg-bg3 text-text2 px-3.5 py-1.5 rounded-full text-xs cursor-pointer transition-all border border-transparent hover:border-accent hover:text-accent"
-            >
-              {city}
-            </a>
-          ))}
+        {/* Popular countries */}
+        <div className="w-full max-w-[700px] mt-8">
+          <h2 className="text-xs font-bold text-text3 uppercase tracking-widest mb-3">
+            Browse by country
+          </h2>
+          <div className="flex gap-2.5 flex-wrap justify-center">
+            {POPULAR_COUNTRIES.map(({ name, clubs }) => (
+              <a
+                key={name}
+                href={`/country/${name.toLowerCase().replace(/\s+/g, "-")}`}
+                className="bg-bg3 text-text2 px-3.5 py-1.5 rounded-full text-xs cursor-pointer transition-all border border-transparent hover:border-accent hover:text-accent"
+              >
+                {name} <span className="text-text3">({clubs})</span>
+              </a>
+            ))}
+          </div>
+        </div>
+
+        {/* Popular cities */}
+        <div className="w-full max-w-[700px] mt-5">
+          <h2 className="text-xs font-bold text-text3 uppercase tracking-widest mb-3">
+            Popular cities
+          </h2>
+          <div className="flex gap-2.5 flex-wrap justify-center">
+            {POPULAR_CITIES.map((city) => (
+              <a
+                key={city}
+                href={`/city/${city.toLowerCase().replace(/\s+/g, "-")}`}
+                className="bg-bg3 text-text2 px-3.5 py-1.5 rounded-full text-xs cursor-pointer transition-all border border-transparent hover:border-accent hover:text-accent"
+              >
+                {city}
+              </a>
+            ))}
+          </div>
         </div>
       </main>
     </div>

@@ -50,12 +50,13 @@ export default async function ClubPage({ params }: ClubPageProps) {
 
   const club = data as Club;
 
-  // JSON-LD structured data for search engines
+  // JSON-LD structured data
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "SportsActivityLocation",
     name: club.name,
     sport: "Brazilian Jiu-Jitsu",
+    url: `https://rollmap.co/club/${club.id}`,
     ...(club.address && { address: {
       "@type": "PostalAddress",
       streetAddress: club.address,
@@ -72,13 +73,29 @@ export default async function ClubPage({ params }: ClubPageProps) {
     ...(club.website && { url: club.website.startsWith("http") ? club.website : `https://${club.website}` }),
   };
 
+  // Breadcrumb JSON-LD
+  const breadcrumbLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Home", item: "https://rollmap.co" },
+      ...(club.country ? [{ "@type": "ListItem", position: 2, name: club.country, item: `https://rollmap.co/country/${club.country.toLowerCase().replace(/\s+/g, "-")}` }] : []),
+      ...(club.city ? [{ "@type": "ListItem", position: club.country ? 3 : 2, name: club.city, item: `https://rollmap.co/city/${club.city.toLowerCase().replace(/\s+/g, "-")}` }] : []),
+      { "@type": "ListItem", position: (club.country ? 3 : 2) + (club.city ? 1 : 0), name: club.name },
+    ],
+  };
+
   return (
     <div className="min-h-screen flex flex-col">
-      {/* JSON-LD */}
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }}
+      />
+
       {/* Header */}
       <header className="flex items-center gap-4 px-5 py-4 bg-bg2 border-b border-bg3">
         <Link
@@ -94,6 +111,25 @@ export default async function ClubPage({ params }: ClubPageProps) {
           Roll<span className="text-accent">Map</span>
         </Link>
       </header>
+
+      {/* Breadcrumb */}
+      <nav className="px-5 pt-4 text-xs text-text3" aria-label="Breadcrumb">
+        <Link href="/" className="hover:text-accent transition-colors">Home</Link>
+        {club.country && (
+          <>
+            <span className="mx-1.5">/</span>
+            <Link href={`/country/${club.country.toLowerCase().replace(/\s+/g, "-")}`} className="hover:text-accent transition-colors">{club.country}</Link>
+          </>
+        )}
+        {club.city && (
+          <>
+            <span className="mx-1.5">/</span>
+            <Link href={`/city/${club.city.toLowerCase().replace(/\s+/g, "-")}`} className="hover:text-accent transition-colors">{club.city}</Link>
+          </>
+        )}
+        <span className="mx-1.5">/</span>
+        <span className="text-text2">{club.name}</span>
+      </nav>
 
       {/* Content */}
       <main className="flex-1">

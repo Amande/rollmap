@@ -60,6 +60,17 @@ export default async function CityPage({ params }: CityPageProps) {
   const clubs = data as Club[];
   const country = clubs[0]?.country || "";
 
+  // Breadcrumb JSON-LD
+  const breadcrumbLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Home", item: "https://rollmap.co" },
+      ...(country ? [{ "@type": "ListItem", position: 2, name: country, item: `https://rollmap.co/country/${country.toLowerCase().replace(/\s+/g, "-")}` }] : []),
+      { "@type": "ListItem", position: country ? 3 : 2, name: city },
+    ],
+  };
+
   // JSON-LD for the city page
   const jsonLd = {
     "@context": "https://schema.org",
@@ -85,6 +96,10 @@ export default async function CityPage({ params }: CityPageProps) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }}
+      />
 
       {/* Header */}
       <header className="flex items-center gap-4 px-5 py-4 bg-bg2 border-b border-bg3">
@@ -101,6 +116,15 @@ export default async function CityPage({ params }: CityPageProps) {
 
       {/* Hero */}
       <div className="px-5 py-8 md:px-8 bg-bg2 border-b border-bg3">
+        {country && (
+          <div className="text-xs text-text3 mb-2">
+            <Link href="/" className="hover:text-accent transition-colors">Home</Link>
+            <span className="mx-1.5">/</span>
+            <Link href={`/country/${country.toLowerCase().replace(/\s+/g, "-")}`} className="hover:text-accent transition-colors">{country}</Link>
+            <span className="mx-1.5">/</span>
+            <span className="text-text2">{city}</span>
+          </div>
+        )}
         <h1 className="text-2xl md:text-3xl font-extrabold mb-2">
           BJJ gyms in <span className="text-accent">{city}</span>
         </h1>

@@ -7,20 +7,23 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
   );
 
-  // Fetch distinct cities for city pages
+  // Fetch distinct cities and countries
   const cityEntries: MetadataRoute.Sitemap = [];
+  const countryEntries: MetadataRoute.Sitemap = [];
   const citySet = new Set<string>();
+  const countrySet = new Set<string>();
   let cityPage = 0;
   while (true) {
     const { data: cityData } = await supabase
       .from("clubs")
-      .select("city")
+      .select("city, country")
       .not("city", "is", null)
       .order("city")
       .range(cityPage * 1000, (cityPage + 1) * 1000 - 1);
     if (!cityData || cityData.length === 0) break;
     for (const row of cityData) {
       if (row.city) citySet.add(row.city);
+      if (row.country) countrySet.add(row.country);
     }
     cityPage++;
   }
@@ -31,6 +34,15 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       lastModified: new Date().toISOString(),
       changeFrequency: "weekly",
       priority: 0.8,
+    });
+  }
+  for (const country of countrySet) {
+    const slug = country.toLowerCase().replace(/\s+/g, "-");
+    countryEntries.push({
+      url: `https://rollmap.co/country/${encodeURIComponent(slug)}`,
+      lastModified: new Date().toISOString(),
+      changeFrequency: "weekly",
+      priority: 0.9,
     });
   }
 
@@ -72,6 +84,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: "weekly",
       priority: 0.8,
     },
+    ...countryEntries,
     ...cityEntries,
     ...clubEntries,
   ];

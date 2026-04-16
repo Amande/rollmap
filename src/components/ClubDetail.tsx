@@ -148,9 +148,9 @@ export default function ClubDetail({ club: initialClub }: ClubDetailProps) {
 
             {/* Location */}
             <section className="mb-6">
-              <h4 className="text-xs uppercase text-text3 tracking-widest font-bold mb-2">
+              <h2 className="text-xs uppercase text-text3 tracking-widest font-bold mb-2">
                 Location
-              </h4>
+              </h2>
               {club.address && (
                 <p className="text-text text-sm mb-0.5">{club.address}</p>
               )}
@@ -172,9 +172,9 @@ export default function ClubDetail({ club: initialClub }: ClubDetailProps) {
             {/* Additional info */}
             {(club.price || club.drop_in_price || club.nb_licencies) && (
               <section className="mb-6">
-                <h4 className="text-xs uppercase text-text3 tracking-widest font-bold mb-2">
+                <h2 className="text-xs uppercase text-text3 tracking-widest font-bold mb-2">
                   Info
-                </h4>
+                </h2>
                 <div className="grid grid-cols-2 gap-3">
                   {(club.drop_in_price || club.price) && (
                     <div className="bg-bg2 rounded-lg p-3 border border-bg3">
@@ -195,9 +195,9 @@ export default function ClubDetail({ club: initialClub }: ClubDetailProps) {
             {/* Schedule */}
             {club.schedule_notes && (
               <section className="mb-6">
-                <h4 className="text-xs uppercase text-text3 tracking-widest font-bold mb-2">
+                <h2 className="text-xs uppercase text-text3 tracking-widest font-bold mb-2">
                   Schedule
-                </h4>
+                </h2>
                 <div className="bg-bg2 rounded-lg p-4 border border-bg3">
                   <p className="text-text text-sm whitespace-pre-line">{club.schedule_notes}</p>
                 </div>
@@ -232,9 +232,9 @@ export default function ClubDetail({ club: initialClub }: ClubDetailProps) {
             {/* Contact card */}
             {hasContact && (
               <div className="bg-bg2 rounded-xl border border-bg3 p-5 mb-5">
-                <h4 className="text-xs uppercase text-text3 tracking-widest font-bold mb-4">
+                <h2 className="text-xs uppercase text-text3 tracking-widest font-bold mb-4">
                   Contact
-                </h4>
+                </h2>
                 <div className="space-y-3">
                   {club.website && safeWebUrl(club.website) && (
                     <a
