@@ -9,13 +9,26 @@ interface ClubPageProps {
   params: Promise<{ id: string }>;
 }
 
+function hasRichContent(club: { website?: string | null; instagram?: string | null; phone?: string | null; email?: string | null; schedule_notes?: string | null; drop_in_price?: string | null }): boolean {
+  // Club is "rich" if it has at least 1 contact/info signal beyond name+address
+  const signals = [
+    !!club.website,
+    !!club.instagram,
+    !!club.phone,
+    !!club.email,
+    !!club.schedule_notes,
+    !!club.drop_in_price,
+  ].filter(Boolean).length;
+  return signals >= 1;
+}
+
 export async function generateMetadata({
   params,
 }: ClubPageProps): Promise<Metadata> {
   const { id } = await params;
   const { data } = await supabase
     .from("clubs")
-    .select("name, city, country")
+    .select("name, city, country, website, instagram, phone, email, schedule_notes, drop_in_price")
     .eq("id", Number(id))
     .single();
 
@@ -26,6 +39,8 @@ export async function generateMetadata({
   const title = `${data.name} — BJJ in ${data.city || data.country}`;
   const description = `${data.name} — Brazilian Jiu-Jitsu gym in ${data.city || ""}${data.country ? `, ${data.country}` : ""}. Find schedule, contact, and training info on RollMap.`;
 
+  const rich = hasRichContent(data);
+
   return {
     title,
     description,
@@ -33,6 +48,9 @@ export async function generateMetadata({
     alternates: {
       canonical: `/club/${id}`,
     },
+    robots: rich
+      ? { index: true, follow: true }
+      : { index: false, follow: true }, // noindex thin clubs but keep crawling internal links
   };
 }
 

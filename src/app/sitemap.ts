@@ -1,5 +1,6 @@
 import type { MetadataRoute } from "next";
 import { createClient } from "@supabase/supabase-js";
+import { getAllPosts } from "@/content/blog";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const supabase = createClient(
@@ -46,20 +47,31 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     });
   }
 
-  // Fetch all club IDs in batches
+  // Fetch only "rich" clubs (with enough content to be indexable)
+  // A club is rich if it has 1+ contact/info signal
   const clubEntries: MetadataRoute.Sitemap = [];
   let page = 0;
 
   while (true) {
     const { data } = await supabase
       .from("clubs")
-      .select("id, updated_at")
+      .select("id, updated_at, website, instagram, phone, email, schedule_notes, drop_in_price")
       .order("id")
       .range(page * 1000, (page + 1) * 1000 - 1);
 
     if (!data || data.length === 0) break;
 
     for (const club of data) {
+      const signals = [
+        !!club.website,
+        !!club.instagram,
+        !!club.phone,
+        !!club.email,
+        !!club.schedule_notes,
+        !!club.drop_in_price,
+      ].filter(Boolean).length;
+      if (signals < 1) continue; // skip empty clubs from sitemap
+
       clubEntries.push({
         url: `https://rollmap.co/club/${club.id}`,
         lastModified: club.updated_at || new Date().toISOString(),
@@ -84,6 +96,18 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: "weekly",
       priority: 0.8,
     },
+    {
+      url: "https://rollmap.co/blog",
+      lastModified: new Date().toISOString(),
+      changeFrequency: "weekly",
+      priority: 0.8,
+    },
+    ...getAllPosts().map((p) => ({
+      url: `https://rollmap.co/blog/${p.slug}`,
+      lastModified: p.date,
+      changeFrequency: "monthly" as const,
+      priority: 0.7,
+    })),
     ...countryEntries,
     ...cityEntries,
     ...clubEntries,

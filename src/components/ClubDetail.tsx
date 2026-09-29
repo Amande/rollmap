@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { Club } from "@/lib/types";
 import MapDynamic from "./MapDynamic";
 import SuggestEditModal from "./SuggestEditModal";
@@ -145,6 +146,42 @@ export default function ClubDetail({ club: initialClub }: ClubDetailProps) {
                 </div>
               )}
             </div>
+
+            {/* Unique description for SEO */}
+            <section className="mb-6">
+              <p className="text-text2 text-sm leading-relaxed">
+                <strong className="text-text">{club.name}</strong> is a Brazilian Jiu-Jitsu academy
+                {club.city ? <> located in <strong className="text-text">{club.city}</strong></> : null}
+                {club.country ? <>, {club.country}</> : null}.
+                {" "}This gym offers
+                {club.gi && club.nogi
+                  ? " both Gi and No-Gi training"
+                  : club.gi
+                  ? " Gi training"
+                  : club.nogi
+                  ? " No-Gi training"
+                  : " Brazilian Jiu-Jitsu classes"}
+                {club.open_mat ? ", including weekly Open Mat sessions" : ""}
+                {club.drop_in ? ", and welcomes drop-in visitors from other gyms" : ""}.
+                {club.kids_friendly ? " Kids classes are also available." : ""}
+                {" "}If you&apos;re traveling to{" "}
+                {club.city ? (
+                  <Link href={`/city/${club.city.toLowerCase().replace(/\s+/g, "-")}`} className="text-accent hover:underline">{club.city}</Link>
+                ) : (
+                  "this region"
+                )}
+                {", "}
+                {club.country ? (
+                  <>
+                    explore more{" "}
+                    <Link href={`/country/${club.country.toLowerCase().replace(/\s+/g, "-")}`} className="text-accent hover:underline">BJJ gyms in {club.country}</Link>
+                    {" "}or browse the full list of academies nearby.
+                  </>
+                ) : (
+                  "discover more BJJ academies nearby on RollMap."
+                )}
+              </p>
+            </section>
 
             {/* Location */}
             <section className="mb-6">
