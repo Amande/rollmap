@@ -5,9 +5,13 @@ import L from "leaflet";
 import "leaflet.markercluster";
 import { Club } from "@/lib/types";
 
+// CARTO basemaps require an API key since 2026-09-23 (watermarked tiles otherwise)
+const CARTO_KEY = process.env.NEXT_PUBLIC_CARTO_API_KEY;
+const keyParam = CARTO_KEY ? `?key=${CARTO_KEY}` : "";
+
 const TILE_URLS = {
-  light: "https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png",
-  dark: "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png",
+  light: `https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png${keyParam}`,
+  dark: `https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png${keyParam}`,
 } as const;
 
 type MapTheme = keyof typeof TILE_URLS;
