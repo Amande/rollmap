@@ -2,6 +2,9 @@ import type { MetadataRoute } from "next";
 import { createClient } from "@supabase/supabase-js";
 import { getAllPosts } from "@/content/blog";
 
+// Skip corrupted names from scraped data (control chars, stray symbols)
+const VALID_PLACE_NAME = /^[\p{L}\p{M}\p{N}\s\-'’´`./()]+$/u;
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const supabase = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -23,8 +26,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       .range(cityPage * 1000, (cityPage + 1) * 1000 - 1);
     if (!cityData || cityData.length === 0) break;
     for (const row of cityData) {
-      if (row.city) citySet.add(row.city);
-      if (row.country) countrySet.add(row.country);
+      if (row.city && VALID_PLACE_NAME.test(row.city)) citySet.add(row.city);
+      if (row.country && VALID_PLACE_NAME.test(row.country)) countrySet.add(row.country);
     }
     cityPage++;
   }
