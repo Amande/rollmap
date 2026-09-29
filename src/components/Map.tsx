@@ -6,7 +6,7 @@ import "leaflet.markercluster";
 import { Club } from "@/lib/types";
 
 // CARTO basemaps require an API key since 2026-09-23 (watermarked tiles otherwise)
-const CARTO_KEY = process.env.NEXT_PUBLIC_CARTO_API_KEY;
+const CARTO_KEY = process.env.NEXT_PUBLIC_CARTO_API_KEY?.trim();
 const keyParam = CARTO_KEY ? `?key=${CARTO_KEY}` : "";
 
 const TILE_URLS = {
