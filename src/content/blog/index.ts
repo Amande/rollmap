@@ -11,6 +11,51 @@ export interface BlogPost {
 }
 
 export const POSTS: BlogPost[] = [
+    {
+    slug: "ibjjf-europeans-2027-lisbon-where-to-train",
+    title: "Competing at the 2027 IBJJF Europeans? Where to train in Lisbon before and after",
+    description:
+      "Heading to Odivelas for the 2027 European IBJJF Championship? Key dates, registration deadlines and how to find a gym to train in Lisbon during your trip.",
+    date: "2026-09-30",
+    author: "Amandine",
+    readTime: "4 min read",
+    cityLinks: ["lisbon", "odivelas"],
+    countryLinks: ["portugal"],
+    content: `
+## The biggest BJJ tournament in Europe is back near Lisbon
+
+The 2027 European IBJJF Jiu-Jitsu Championship runs from **January 13 to 23, 2027** at the **Pavilhão Multiusos de Odivelas**, just north of Lisbon. Thousands of athletes from all over the world will fly in, from juvenile divisions to masters and adult black belts.
+
+If you're competing, or just coming to watch, you'll probably spend a few days in the city. That's the perfect excuse to train somewhere new.
+
+## Key dates to put in your calendar
+
+- **December 23, 2026** — affiliation deadline
+- **January 3, 2027** — registration deadline
+- **January 4, 2027** — athlete correction deadline
+- **January 8, 2027** — registration checkday
+- **January 13–23, 2027** — competition days
+
+Always double-check the official IBJJF event page before booking: schedules can move depending on bracket sizes.
+
+## Training before your matches
+
+Want to keep your timing sharp without getting injured the week of the tournament? A few light drilling sessions or a relaxed open mat in a gym near your hotel is the way to go.
+
+RollMap lists **35+ gyms in Lisbon** and a few right in **Odivelas**, a short ride from the venue. Browse all [BJJ gyms in Lisbon](/city/lisbon), the [gyms in Odivelas](/city/odivelas), or every [BJJ gym in Portugal](/country/portugal).
+
+## Tips for Europeans week
+
+1. **Message gyms early.** During Europeans week, many gyms get a lot of visitors. Send a quick Instagram message a few days before to confirm drop-in and class times.
+2. **Ask about competitor-friendly sessions.** Some gyms run lighter sessions or open mats for visiting athletes during big tournaments.
+3. **Plan your weight.** January in Lisbon is mild, but you'll be eating out a lot. Keep a scale in your bag.
+4. **Stay after your division.** The tournament runs for more than a week, so if your bracket is early, you have time to train, recover and watch the black belts on the final weekend.
+
+Competing at the Europeans? Tell us which gym you trained at with the "I've trained here" button, it helps the next traveler.
+
+Oss.
+    `.trim(),
+  },
   {
     slug: "bjj-gyms-lisbon-guide",
     title: "Training BJJ in Lisbon: the traveler's guide",
