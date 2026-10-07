@@ -15,6 +15,12 @@ function slugToCity(slug: string): string {
     .replace(/\b\w/g, (c) => c.toUpperCase());
 }
 
+// Slugs turn spaces into "-", but city names can also contain "-" (Saint-Ouen).
+// "_" is ILIKE's single-char wildcard, so it matches either.
+function slugToCityPattern(slug: string): string {
+  return decodeURIComponent(slug).replace(/-/g, "_");
+}
+
 export async function generateMetadata({
   params,
 }: CityPageProps): Promise<Metadata> {
@@ -25,7 +31,7 @@ export async function generateMetadata({
   const { count } = await supabase
     .from("clubs")
     .select("id", { count: "exact", head: true })
-    .ilike("city", city);
+    .ilike("city", slugToCityPattern(slug));
 
   if (!count || count === 0) {
     return { title: `BJJ gyms in ${city}` };
@@ -44,12 +50,10 @@ export async function generateMetadata({
 
 export default async function CityPage({ params }: CityPageProps) {
   const { slug } = await params;
-  const city = slugToCity(slug);
-
   const { data, error } = await supabase
     .from("clubs")
     .select("*")
-    .ilike("city", city)
+    .ilike("city", slugToCityPattern(slug))
     .order("name")
     .limit(200);
 
@@ -58,6 +62,7 @@ export default async function CityPage({ params }: CityPageProps) {
   }
 
   const clubs = data as Club[];
+  const city = clubs[0]?.city || slugToCity(slug);
   const country = clubs[0]?.country || "";
 
   // Breadcrumb JSON-LD
