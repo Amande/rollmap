@@ -16,6 +16,16 @@ const TILE_URLS = {
 
 type MapTheme = keyof typeof TILE_URLS;
 
+const THEME_STORAGE_KEY = "rollmap-map-theme";
+
+function readStoredTheme(): MapTheme {
+  try {
+    return localStorage.getItem(THEME_STORAGE_KEY) === "light" ? "light" : "dark";
+  } catch {
+    return "dark";
+  }
+}
+
 // Extend L namespace for markerClusterGroup
 declare module "leaflet" {
   function markerClusterGroup(options?: Record<string, unknown>): L.MarkerClusterGroup;
@@ -28,6 +38,8 @@ interface MapProps {
   className?: string;
   highlightedClub?: Club | null;
   onClubClick?: (club: Club) => void;
+  /** Clubs to frame the view on (defaults to all clubs) */
+  focusClubs?: Club[];
 }
 
 const ACCENT = "#22d3a7";
@@ -52,6 +64,7 @@ export default function MapComponent({
   className = "",
   highlightedClub,
   onClubClick,
+  focusClubs,
 }: MapProps) {
   const mapRef = useRef<L.Map | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -59,7 +72,8 @@ export default function MapComponent({
   const clusterRef = useRef<any>(null);
   const markersRef = useRef<globalThis.Map<number, L.Marker>>(new globalThis.Map());
   const tileLayerRef = useRef<L.TileLayer | null>(null);
-  const [theme, setTheme] = useState<MapTheme>("dark");
+  // Map is client-only (dynamic import, no SSR), so localStorage is available here
+  const [theme, setTheme] = useState<MapTheme>(readStoredTheme);
 
   // Initialize map
   useEffect(() => {
@@ -72,7 +86,7 @@ export default function MapComponent({
       attributionControl: false,
     });
 
-    const tileLayer = L.tileLayer(TILE_URLS.dark, {
+    const tileLayer = L.tileLayer(TILE_URLS[theme], {
       maxZoom: 19,
     }).addTo(map);
 
@@ -111,7 +125,7 @@ export default function MapComponent({
       if (club.lat == null || club.lng == null) return;
 
       const marker = L.marker([club.lat, club.lng], {
-        icon: createClubIcon(false),
+        icon: createClubIcon(false, theme),
       });
 
       const popupContent = `
@@ -144,8 +158,8 @@ export default function MapComponent({
     clusterRef.current = cluster;
     markersRef.current = newMarkers;
 
-    // Fit bounds to show all clubs
-    const withCoords = clubs.filter((c) => c.lat != null && c.lng != null);
+    // Fit bounds to the focus clubs (or all clubs)
+    const withCoords = (focusClubs ?? clubs).filter((c) => c.lat != null && c.lng != null);
     if (withCoords.length > 0) {
       const bounds = L.latLngBounds(
         withCoords.map((c) => [c.lat!, c.lng!] as [number, number])
@@ -155,7 +169,8 @@ export default function MapComponent({
       // No results: reset to world view
       map.setView([30, 0], 2);
     }
-  }, [clubs, onClubClick]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [clubs, onClubClick, focusClubs]);
 
   // Switch tile layer on theme change
   useEffect(() => {
@@ -184,7 +199,16 @@ export default function MapComponent({
     });
   }, [highlightedClub]);
 
-  const toggleTheme = () => setTheme((t) => (t === "light" ? "dark" : "light"));
+  const toggleTheme = () =>
+    setTheme((t) => {
+      const next = t === "light" ? "dark" : "light";
+      try {
+        localStorage.setItem(THEME_STORAGE_KEY, next);
+      } catch {
+        // storage unavailable (private mode): theme still applies for this page
+      }
+      return next;
+    });
 
   return (
     <div className={`w-full h-full relative ${className}`} style={{ minHeight: "250px" }}>

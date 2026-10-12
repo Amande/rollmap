@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useMemo } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import SearchBar from "@/components/SearchBar";
 import FilterBar from "@/components/FilterBar";
@@ -132,6 +132,28 @@ export default function SearchContent() {
     return [avgLat, avgLng];
   }, [filteredClubs, isGeoSearch, userLat, userLng]);
 
+  // Clubs the map should frame, so it zooms on what matters instead of every result
+  const focusClubs = useMemo((): Club[] => {
+    const withCoords = filteredClubs.filter((c) => c.lat != null && c.lng != null);
+    if (withCoords.length === 0) return withCoords;
+
+    // Near me: results are sorted by distance, frame the closest ones
+    if (isGeoSearch) return withCoords.slice(0, 10);
+
+    // City/text search: frame clubs around the median point, ignoring far-away
+    // matches (e.g. "Paris" also matching Paris, Texas)
+    const median = (values: number[]) => {
+      const sorted = [...values].sort((a, b) => a - b);
+      return sorted[Math.floor(sorted.length / 2)];
+    };
+    const centerLat = median(withCoords.map((c) => c.lat!));
+    const centerLng = median(withCoords.map((c) => c.lng!));
+    const nearby = withCoords.filter(
+      (c) => haversineKm(centerLat, centerLng, c.lat!, c.lng!) <= 30
+    );
+    return nearby.length > 0 ? nearby : withCoords;
+  }, [filteredClubs, isGeoSearch]);
+
   // Format distance for display
   const formatDistance = (club: Club & { _distance?: number }): string | null => {
     if (!club._distance) return null;
@@ -225,6 +247,7 @@ export default function SearchContent() {
             center={mapCenter()}
             zoom={isGeoSearch ? 12 : query ? 10 : 5}
             highlightedClub={hoveredClub}
+            focusClubs={focusClubs}
           />
         </div>
       </div>
