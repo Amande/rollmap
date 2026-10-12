@@ -8,7 +8,10 @@ MVP web app to discover 1300+ Brazilian Jiu-Jitsu gyms worldwide.
 - **Tailwind CSS v4**
 - **Supabase** (PostgreSQL + PostGIS)
 - **Leaflet** + react-leaflet + marker clusters
-- **Vercel** for deployment
+- **CARTO basemaps** (API key required since 2026-09-23)
+- **Vercel** for deployment + **Vercel Web Analytics**
+
+Project status and TODO: see `../STATUS.md`.
 
 ## Setup
 
@@ -99,3 +102,19 @@ npx vercel
 Set environment variables in Vercel dashboard:
 - `NEXT_PUBLIC_SUPABASE_URL`
 - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+- `NEXT_PUBLIC_CARTO_API_KEY` (map tiles are watermarked without it)
+
+`.env.local` also needs `NEXT_PUBLIC_CARTO_API_KEY`, and `SUPABASE_SERVICE_ROLE_KEY` for admin scripts.
+
+## Data
+
+- Sources (column `source`): `ibjjf` (~89 %), `cfjjb` (France, with emails), affiliation networks, `bjj_globetrotters`, `club_request` (added on a gym's request).
+- `curated_v2` was AI-generated during prototyping and is **not verified** (drop-in flags removed on 2026-09-30).
+- `verified = true` means the gym confirmed its info directly.
+- Bulk data fixes live in `supabase/fix-data-*.sql` and are run manually in the Supabase SQL editor after a backup.
+
+## SEO notes
+
+- Club pages with no contact/info signal are `noindex` and excluded from the sitemap.
+- City slugs map spaces to `-`; the city page matches `-` against space or hyphen (ILIKE `_`).
+- `/city/lisboa` and `/city/warszawa` redirect (308) to `/city/lisbon` and `/city/warsaw`.
