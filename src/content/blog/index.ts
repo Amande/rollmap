@@ -13,9 +13,9 @@ export interface BlogPost {
 export const POSTS: BlogPost[] = [
     {
     slug: "ibjjf-europeans-2027-lisbon-where-to-train",
-    title: "Competing at the 2027 IBJJF Europeans? Where to train in Lisbon before and after",
+    title: "IBJJF Europeans 2027 Lisbon: Dates & Where to Train",
     description:
-      "Heading to Odivelas for the 2027 European IBJJF Championship? Key dates, registration deadlines and how to find a gym to train in Lisbon during your trip.",
+      "European IBJJF Championship 2027: Jan 13–23 in Odivelas, Lisbon. Registration closes Jan 3. All key deadlines + BJJ gyms to train at during your trip.",
     date: "2026-09-30",
     author: "Amandine",
     readTime: "4 min read",
