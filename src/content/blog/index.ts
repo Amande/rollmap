@@ -7,6 +7,7 @@ export interface BlogPost {
   readTime: string;
   cityLinks?: string[]; // city slugs to link to
   countryLinks?: string[]; // country slugs
+  event?: string; // tournament name — shows a callout on the cityLinks pages
   content: string; // simple markdown-like blocks
 }
 
@@ -21,6 +22,7 @@ export const POSTS: BlogPost[] = [
     readTime: "4 min read",
     cityLinks: ["lisbon", "odivelas"],
     countryLinks: ["portugal"],
+    event: "the IBJJF Europeans 2027",
     content: `
 ## The biggest BJJ tournament in Europe is back near Lisbon
 
@@ -209,6 +211,12 @@ Happy rolling.
 
 export function getPostBySlug(slug: string): BlogPost | undefined {
   return POSTS.find((p) => p.slug === slug);
+}
+
+/** Tournament posts linked to a city page (for the "Visiting for a tournament?" callout) */
+export function getEventPostsForCity(citySlug: string): BlogPost[] {
+  const slug = citySlug.toLowerCase();
+  return getAllPosts().filter((p) => p.event && p.cityLinks?.includes(slug));
 }
 
 export function getAllPosts(): BlogPost[] {

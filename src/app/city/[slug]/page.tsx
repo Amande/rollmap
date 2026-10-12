@@ -4,6 +4,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import CityContent from "./CityContent";
+import { getEventPostsForCity } from "@/content/blog";
 
 interface CityPageProps {
   params: Promise<{ slug: string }>;
@@ -138,6 +139,21 @@ export default async function CityPage({ params }: CityPageProps) {
           {country ? ` in ${city}, ${country}` : ` in ${city}`}
         </p>
       </div>
+
+      {/* Tournament callouts */}
+      {getEventPostsForCity(decodeURIComponent(slug)).map((post) => (
+        <Link
+          key={post.slug}
+          href={`/blog/${post.slug}`}
+          className="mx-5 md:mx-8 mt-4 flex items-center justify-between gap-3 rounded-lg border border-accent/40 bg-accent/10 px-4 py-3 hover:bg-accent/20 transition-colors"
+        >
+          <span className="text-sm">
+            <strong className="text-text">Visiting {city} for {post.event}?</strong>{" "}
+            <span className="text-text2">Dates, deadlines and where to train.</span>
+          </span>
+          <span className="text-accent text-sm font-semibold shrink-0">Read the guide &rarr;</span>
+        </Link>
+      ))}
 
       {/* Content */}
       <main className="flex-1">
