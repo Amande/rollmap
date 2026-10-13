@@ -12,6 +12,93 @@ export interface BlogPost {
 }
 
 export const POSTS: BlogPost[] = [
+  {
+    slug: "abu-dhabi-world-pro-2026-where-to-train",
+    title: "Abu Dhabi World Pro 2026: Dates & Where to Train",
+    description:
+      "Abu Dhabi World Professional Jiu-Jitsu Championship 2026: Nov 9–21 at Mubadala Arena, pro divisions Nov 19–21. Key info + BJJ gyms in Abu Dhabi and the UAE.",
+    date: "2026-10-13",
+    author: "Amandine",
+    readTime: "4 min read",
+    cityLinks: ["abu-dhabi", "dubai", "al-ain"],
+    countryLinks: ["united-arab-emirates"],
+    event: "the Abu Dhabi World Pro 2026",
+    content: `
+## One of the biggest jiu-jitsu events of the year
+
+The 18th **Abu Dhabi World Professional Jiu-Jitsu Championship** takes place from **November 9 to 21, 2026** at **Mubadala Arena** in Abu Dhabi. Around **12,000 athletes** from all over the world are expected, according to the UAE's official news agency.
+
+The event runs over 13 days: the first days cover youth, masters and other divisions, and the **professional divisions run from November 19 to 21**.
+
+## Registration
+
+Registration is handled on the official AJP website (ajptour.com). At the time of writing, the event listing shows a late registration window until **November 1, 2026**. Always check the official page for the latest deadlines and weigh-in times before booking your trip.
+
+## Training before your matches
+
+Abu Dhabi has a strong jiu-jitsu culture: the sport is taught widely in the UAE and there are plenty of mats to keep your timing sharp before competing.
+
+RollMap lists **17 gyms in Abu Dhabi** and more across the Emirates. Browse all [BJJ gyms in Abu Dhabi](/city/abu-dhabi), the [gyms in Dubai](/city/dubai) and [Al Ain](/city/al-ain), or every [BJJ gym in the UAE](/country/united-arab-emirates).
+
+## Tips for World Pro week
+
+1. **Message gyms early.** Event weeks bring a lot of visiting athletes. A quick Instagram message avoids surprises with class times or drop-in fees.
+2. **Train early or late.** Even in November, midday in Abu Dhabi is warm. Morning and evening classes are the most comfortable.
+3. **Keep it light.** The week before a big tournament is for sharpening, not for hard rounds with strangers.
+4. **Plan your weight.** Check the official weigh-in schedule for your division as soon as it's published.
+
+Competing at the World Pro? Tell us which gym you trained at with the "I've trained here" button, it helps the next traveler.
+
+Oss.
+    `.trim(),
+  },
+  {
+    slug: "ibjjf-no-gi-worlds-2026-las-vegas-where-to-train",
+    title: "IBJJF No-Gi Worlds 2026 Las Vegas: Dates & Where to Train",
+    description:
+      "World IBJJF No-Gi Championship 2026: Dec 10–12 at the Las Vegas Convention Center. Registration closes Nov 29. All key deadlines + BJJ gyms in Las Vegas.",
+    date: "2026-10-13",
+    author: "Amandine",
+    readTime: "4 min read",
+    cityLinks: ["las-vegas"],
+    countryLinks: ["united-states"],
+    event: "the IBJJF No-Gi Worlds 2026",
+    content: `
+## The No-Gi world championship is in Vegas
+
+The **World IBJJF Jiu-Jitsu No-Gi Championship 2026** runs from **December 10 to 12, 2026** at the **Las Vegas Convention Center** (Halls N3/N4, 300 Convention Center Dr). Adult and master divisions, blue to black belt.
+
+## Key dates to put in your calendar
+
+- **November 19, 2026** — affiliation deadline
+- **November 29, 2026** — registration deadline (11:59 PM local time)
+- **November 30, 2026** — athlete correction deadline
+- **December 4, 2026** — registration checkday
+- **December 9, 2026** — schedule and brackets released
+- **December 10–12, 2026** — competition days
+
+Registration fee is **$204 until November 29**. Spectator entry is **$25 per day**, free for kids 12 and under.
+
+## Weigh-in: don't get caught out
+
+Weigh-in happens **right before your first fight**, in pounds, with **only one attempt**. If you're over the limit, you're disqualified from your division. Plan your cut accordingly, and be in the bullpen at least one hour before your estimated start time.
+
+## Training before your matches
+
+Vegas is one of the busiest cities in the world for combat sports. RollMap lists **35+ BJJ gyms in Las Vegas**, from big international affiliations to small local academies. Browse all [BJJ gyms in Las Vegas](/city/las-vegas) or every [BJJ gym in the United States](/country/united-states).
+
+## Tips for No-Gi Worlds week
+
+1. **Stay close to your gym.** Vegas is spread out. Check the map before assuming a gym is walkable from the Strip.
+2. **Hydrate like it's a competition.** The desert air dries you out fast, especially after a long flight.
+3. **Message before you go.** Event weeks bring a lot of visitors. A quick Instagram message avoids surprises with class times or drop-in fees.
+4. **Bring your no-gi kit.** Rashguard and spats or shorts, and check each gym's dress code.
+
+Competing at No-Gi Worlds? Tell us which gym you trained at with the "I've trained here" button, it helps the next traveler.
+
+Oss.
+    `.trim(),
+  },
     {
     slug: "ibjjf-europeans-2027-lisbon-where-to-train",
     title: "IBJJF Europeans 2027 Lisbon: Dates & Where to Train",
