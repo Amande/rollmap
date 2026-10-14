@@ -33,6 +33,19 @@ function safeInstagramUrl(handle: string): string | null {
   return null;
 }
 
+type ClickTarget = "website" | "instagram" | "phone" | "email" | "directions";
+
+// Fire-and-forget: sendBeacon survives the navigation to the external link
+function trackClubClick(clubId: number, target: ClickTarget) {
+  const body = JSON.stringify({ club_id: clubId, target });
+  try {
+    if (navigator.sendBeacon?.("/api/click", new Blob([body], { type: "application/json" }))) return;
+    fetch("/api/click", { method: "POST", body, keepalive: true, headers: { "Content-Type": "application/json" } });
+  } catch {
+    // tracking must never block the click
+  }
+}
+
 function GoogleMapsUrl(club: Club): string {
   if (club.lat && club.lng) {
     return `https://www.google.com/maps/search/?api=1&query=${club.lat},${club.lng}`;
@@ -92,6 +105,7 @@ export default function ClubDetail({ club: initialClub }: ClubDetailProps) {
           />
           <a
             href={googleMapsUrl}
+            onClick={() => trackClubClick(club.id, "directions")}
             target="_blank"
             rel="noopener noreferrer"
             className="absolute bottom-3 right-3 z-[500] flex items-center gap-1.5 bg-bg px-3 py-2 rounded-lg text-xs font-semibold text-accent border border-bg3 hover:bg-bg2 transition-colors"
@@ -197,6 +211,7 @@ export default function ClubDetail({ club: initialClub }: ClubDetailProps) {
               </p>
               <a
                 href={googleMapsUrl}
+                onClick={() => trackClubClick(club.id, "directions")}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-1.5 mt-2 text-accent text-sm font-semibold hover:underline"
@@ -276,6 +291,7 @@ export default function ClubDetail({ club: initialClub }: ClubDetailProps) {
                   {club.website && safeWebUrl(club.website) && (
                     <a
                       href={safeWebUrl(club.website)!}
+                      onClick={() => trackClubClick(club.id, "website")}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="flex items-center gap-3 text-sm text-text hover:text-accent transition-colors group"
@@ -289,6 +305,7 @@ export default function ClubDetail({ club: initialClub }: ClubDetailProps) {
                   {club.instagram && safeInstagramUrl(club.instagram) && (
                     <a
                       href={safeInstagramUrl(club.instagram)!}
+                      onClick={() => trackClubClick(club.id, "instagram")}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="flex items-center gap-3 text-sm text-text hover:text-accent transition-colors group"
@@ -302,6 +319,7 @@ export default function ClubDetail({ club: initialClub }: ClubDetailProps) {
                   {club.phone && (
                     <a
                       href={`tel:${club.phone}`}
+                      onClick={() => trackClubClick(club.id, "phone")}
                       className="flex items-center gap-3 text-sm text-text hover:text-accent transition-colors group"
                     >
                       <span className="w-8 h-8 rounded-lg bg-bg3 flex items-center justify-center shrink-0 group-hover:bg-accent/10 transition-colors">
@@ -313,6 +331,7 @@ export default function ClubDetail({ club: initialClub }: ClubDetailProps) {
                   {club.email && (
                     <a
                       href={`mailto:${club.email}`}
+                      onClick={() => trackClubClick(club.id, "email")}
                       className="flex items-center gap-3 text-sm text-text hover:text-accent transition-colors group"
                     >
                       <span className="w-8 h-8 rounded-lg bg-bg3 flex items-center justify-center shrink-0 group-hover:bg-accent/10 transition-colors">
