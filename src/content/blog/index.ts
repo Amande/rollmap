@@ -8,7 +8,21 @@ export interface BlogPost {
   cityLinks?: string[]; // city slugs to link to
   countryLinks?: string[]; // country slugs
   event?: string; // tournament name — shows a callout on the cityLinks pages
+  eventDetails?: EventDetails; // emitted as SportsEvent JSON-LD
+  updated?: string; // ISO, last meaningful content update
   content: string; // simple markdown-like blocks
+}
+
+export interface EventDetails {
+  name: string;
+  startDate: string; // ISO
+  endDate: string; // ISO
+  venue: string;
+  address: string;
+  addressCountry: string; // ISO 3166-1 alpha-2
+  organizer: string;
+  organizerUrl: string;
+  url: string; // official event page
 }
 
 export const POSTS: BlogPost[] = [
@@ -106,32 +120,83 @@ Oss.
       "European IBJJF Championship 2027: Jan 13–23 in Odivelas, Lisbon. Registration closes Jan 3. All key deadlines + BJJ gyms to train at during your trip.",
     date: "2026-09-30",
     author: "Amandine",
-    readTime: "4 min read",
+    readTime: "7 min read",
     cityLinks: ["lisbon", "odivelas"],
     countryLinks: ["portugal"],
     event: "the IBJJF Europeans 2027",
+    updated: "2026-10-14",
+    eventDetails: {
+      name: "European IBJJF Jiu-Jitsu Championship 2027",
+      startDate: "2027-01-13",
+      endDate: "2027-01-23",
+      venue: "Pavilhão Multiusos de Odivelas",
+      address: "Alameda do Porto Pinheiro, 2675-668 Odivelas, Lisboa",
+      addressCountry: "PT",
+      organizer: "IBJJF",
+      organizerUrl: "https://ibjjf.com",
+      url: "https://ibjjf.com/events/european-ibjjf-jiu-jitsu-championship-2027",
+    },
     content: `
-## The biggest BJJ tournament in Europe is back near Lisbon
+## IBJJF Lisbon 2027: the Europeans are back near Lisbon
 
-The 2027 European IBJJF Jiu-Jitsu Championship runs from **January 13 to 23, 2027** at the **Pavilhão Multiusos de Odivelas**, just north of Lisbon. Thousands of athletes from all over the world will fly in, from juvenile divisions to masters and adult black belts.
+The 2027 European IBJJF Jiu-Jitsu Championship, often searched as **IBJJF Lisbon 2027**, runs from **January 13 to 23, 2027** at the **Pavilhão Multiusos de Odivelas** (Alameda do Porto Pinheiro, Odivelas), just north of Lisbon. It's the biggest IBJJF tournament in Europe: thousands of athletes fly in, from juvenile divisions to masters and adult black belts.
 
-If you're competing, or just coming to watch, you'll probably spend a few days in the city. That's the perfect excuse to train somewhere new.
+If you're competing, or just coming to watch, you'll probably spend a few days in the city. Here's everything you need in one place: dates, fees, the day-by-day schedule, practical info, and where to train during your trip.
 
-## Key dates to put in your calendar
+## Key dates and deadlines
 
-- **December 23, 2026** — affiliation deadline
-- **January 3, 2027** — registration deadline
+- **December 23, 2026** — affiliation deadline (academy registration and valid IBJJF membership)
+- **January 3, 2027** — registration deadline (11:59 PM local time, or earlier if capacity is reached)
 - **January 4, 2027** — athlete correction deadline
-- **January 8, 2027** — registration checkday
-- **January 13–23, 2027** — competition days
+- **January 5–6, 2027** — professor correction period
+- **January 8, 2027** — registration checkday (5 PM local time)
+- **January 12, 2027** — schedule and brackets released
+- **January 13–23, 2027** — competition days (January 13 only if registrations require it)
 
-Always double-check the official IBJJF event page before booking: schedules can move depending on bracket sizes.
+## How much is registration?
 
-## Training before your matches
+- **$173** until November 15, 2026
+- **$186** until January 3, 2027
+
+Fees are only refundable within 48 hours of purchase. If you end up alone in your division, you may get a full refund by withdrawing before the checkday deadline. Registering early is cheaper, and IBJJF recommends completing your registration before booking travel.
+
+## Day-by-day schedule (pre-schedule)
+
+IBJJF published a pre-schedule on August 26, 2026. It will change as registrations come in, so be ready to compete at any time on your listed days.
+
+- **Wed Jan 13** (only if needed) — White Master, Blue Master
+- **Thu Jan 14** — White Master, Blue Master 1–7, Purple Master 1–3
+- **Fri Jan 15** — Blue Master 1 (male), Purple Master 1–7, Brown Master 1–3
+- **Sat Jan 16** — Purple Master 4–7, Brown Master 1–4, Black Master 1–3
+- **Sun Jan 17** — Brown Master 4–7, Black Master 1–7
+- **Mon Jan 18** — White Adult, Blue Adult (female), Brown Master 5–7, Black Master 4–7
+- **Tue Jan 19** — White Adult, Blue Adult
+- **Wed Jan 20** — Blue Adult (male), Purple Adult, Brown Adult
+- **Thu Jan 21** — White, Blue and Purple Juvenile, Purple Adult, Brown Adult
+- **Fri Jan 22** — White, Blue and Purple Juvenile, Black Adult
+- **Sat Jan 23** — Blue Juvenile, Black Adult (finals)
+
+## Practical info for athletes
+
+- **Weigh-in** happens right before your first fight, in **kilograms**, with **one attempt only**. Over the limit means disqualified from your division.
+- **Arrive early**: be in the gym and the bullpen at least one hour before your division's estimated start time. Watch the bullpen screens, they are the only official call.
+- **Bring ID**: an official photo ID or your IBJJF membership card, shown before each fight.
+- **Adult black belts** need 40 ranking points to register, and a royal blue gi plus a white gi from the quarterfinals onward.
+- **Anti-doping**: athletes may be tested under the WADA Prohibited List.
+
+## Watching as a spectator
+
+Good news: **spectator entrance is free**. Juvenile athletes can bring one companion for free on their competition day. Food, flags, pets and professional cameras are not allowed inside, and filming or live-streaming fights is forbidden. Doors open about one hour before the first match.
+
+## Getting to the venue
+
+Odivelas is the last stop of the **yellow metro line (Linha Amarela)**, which runs from central Lisbon. Check the walking route from Odivelas station to Alameda do Porto Pinheiro on a map app before your competition day, and plan extra time: thousands of people head to the same place every morning.
+
+## Where to train in Lisbon before and after your matches
 
 Want to keep your timing sharp without getting injured the week of the tournament? A few light drilling sessions or a relaxed open mat in a gym near your hotel is the way to go.
 
-RollMap lists **35+ gyms in Lisbon** and a few right in **Odivelas**, a short ride from the venue. Browse all [BJJ gyms in Lisbon](/city/lisbon), the [gyms in Odivelas](/city/odivelas), or every [BJJ gym in Portugal](/country/portugal).
+RollMap lists **35+ gyms in Lisbon** and a few right in **Odivelas**, a short ride from the venue. Browse all [BJJ gyms in Lisbon](/city/lisbon), the [gyms in Odivelas](/city/odivelas), or every [BJJ gym in Portugal](/country/portugal). New to training abroad? Read our [drop-in etiquette guide](/blog/drop-in-bjj-etiquette) and our [Lisbon traveler's guide](/blog/bjj-gyms-lisbon-guide).
 
 ## Tips for Europeans week
 
@@ -139,6 +204,34 @@ RollMap lists **35+ gyms in Lisbon** and a few right in **Odivelas**, a short ri
 2. **Ask about competitor-friendly sessions.** Some gyms run lighter sessions or open mats for visiting athletes during big tournaments.
 3. **Plan your weight.** January in Lisbon is mild, but you'll be eating out a lot. Keep a scale in your bag.
 4. **Stay after your division.** The tournament runs for more than a week, so if your bracket is early, you have time to train, recover and watch the black belts on the final weekend.
+
+## FAQ
+
+### When is IBJJF Lisbon 2027?
+
+The European IBJJF Jiu-Jitsu Championship 2027 runs from January 13 to 23, 2027. Fights on January 13 only happen if registrations exceed what fits in ten days.
+
+### Where is the IBJJF Europeans 2027?
+
+At the Pavilhão Multiusos de Odivelas, Alameda do Porto Pinheiro, 2675-668 Odivelas, in the Lisbon area, Portugal.
+
+### When is the registration deadline?
+
+January 3, 2027 at 11:59 PM local time, or earlier if the event reaches capacity. The price goes from $173 to $186 after November 15, 2026.
+
+### When are the brackets released?
+
+The schedule and brackets are released on January 12, 2027, on bjjcompsystem.com.
+
+### Is it free to watch?
+
+Yes, spectator entrance is free.
+
+### Where can I train in Lisbon during the Europeans?
+
+Check our map of [BJJ gyms in Lisbon](/city/lisbon) and message the gym before you go to confirm drop-in and class times.
+
+Always double-check the [official IBJJF event page](https://ibjjf.com/events/european-ibjjf-jiu-jitsu-championship-2027) before booking: schedules and deadlines can change.
 
 Competing at the Europeans? Tell us which gym you trained at with the "I've trained here" button, it helps the next traveler.
 

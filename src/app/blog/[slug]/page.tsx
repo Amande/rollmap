@@ -114,6 +114,7 @@ export default async function PostPage({ params }: PostPageProps) {
     headline: post.title,
     description: post.description,
     datePublished: post.date,
+    dateModified: post.updated ?? post.date,
     author: { "@type": "Person", name: post.author },
     url: `https://rollmap.co/blog/${post.slug}`,
     publisher: {
@@ -121,6 +122,25 @@ export default async function PostPage({ params }: PostPageProps) {
       name: "RollMap",
       url: "https://rollmap.co",
     },
+  };
+
+  const event = post.eventDetails;
+  const eventLd = event && {
+    "@context": "https://schema.org",
+    "@type": "SportsEvent",
+    name: event.name,
+    sport: "Brazilian Jiu-Jitsu",
+    startDate: event.startDate,
+    endDate: event.endDate,
+    eventStatus: "https://schema.org/EventScheduled",
+    eventAttendanceMode: "https://schema.org/OfflineEventAttendanceMode",
+    location: {
+      "@type": "Place",
+      name: event.venue,
+      address: { "@type": "PostalAddress", streetAddress: event.address, addressCountry: event.addressCountry },
+    },
+    organizer: { "@type": "Organization", name: event.organizer, url: event.organizerUrl },
+    url: event.url,
   };
 
   const breadcrumbLd = {
@@ -137,6 +157,9 @@ export default async function PostPage({ params }: PostPageProps) {
     <div className="min-h-screen flex flex-col">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }} />
+      {eventLd && (
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(eventLd) }} />
+      )}
 
       <header className="flex items-center gap-4 px-5 py-4 bg-bg2 border-b border-bg3">
         <Link href="/blog" className="text-text2 text-xl cursor-pointer hover:bg-bg3 px-2 py-1 rounded transition-colors">
@@ -162,6 +185,12 @@ export default async function PostPage({ params }: PostPageProps) {
             <p className="text-text2 text-base mb-3">{post.description}</p>
             <div className="text-text3 text-xs">
               {new Date(post.date).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}
+              {post.updated && (
+                <>
+                  <span className="mx-2">·</span>
+                  Updated {new Date(post.updated).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}
+                </>
+              )}
               <span className="mx-2">·</span>
               {post.readTime}
               <span className="mx-2">·</span>
