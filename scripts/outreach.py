@@ -156,6 +156,8 @@ So that people visiting {city} can come and roll with you, could you confirm 3 t
 
 A one-line reply is enough, I'll update your page right away. You can also edit it directly with the "Suggest an edit" button.
 
+And if you like RollMap, feel free to share it with your members who travel, it helps the whole community find good mats.
+
 Not interested? Just tell me and I won't follow up.
 
 Thanks and good training,
