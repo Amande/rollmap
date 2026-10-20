@@ -17,6 +17,12 @@ const SECTIONS = [
     cta: "Add a gym",
   },
   {
+    title: "Share an event",
+    text: "Hosting a women's open mat, a seminar or a guest instructor? Send us the date, place, price and a link (Instagram post is fine) and we'll feature it for traveling grapplers.",
+    subject: "Event: ",
+    cta: "Submit an event",
+  },
+  {
     title: "Update or remove a listing",
     text: "Gym owners can ask us to correct their page (drop-in price, open mat, schedule, contact) or to remove it. Please include the link to your RollMap page.",
     subject: "Update / remove a listing",

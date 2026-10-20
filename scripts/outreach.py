@@ -112,6 +112,8 @@ Une simple réponse à ce mail suffit, je mets la fiche à jour. Vous pouvez aus
 
 Et si RollMap vous paraît utile, un lien vers votre fiche sur votre site ou dans votre bio Instagram nous aide beaucoup à être trouvés par les voyageurs.
 
+Vous organisez un open mat féminin, un stage ou un séminaire avec un invité ? Envoyez-moi les infos (date, prix, lien), je le mets en avant pour les voyageurs.
+
 Pas intéressé ? Dites-le-moi et je ne vous relance pas.
 
 Merci et bons entraînements,
@@ -157,6 +159,8 @@ So that people visiting {city} can come and roll with you, could you confirm 3 t
 A one-line reply is enough, I'll update your page right away. You can also edit it directly with the "Suggest an edit" button.
 
 And if you like RollMap, feel free to share it with your members who travel, it helps the whole community find good mats.
+
+Hosting a women's open mat, a seminar or a guest instructor? Send me the details (date, price, link) and I'll feature it for traveling grapplers.
 
 Not interested? Just tell me and I won't follow up.
 
