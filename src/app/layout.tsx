@@ -92,6 +92,10 @@ export default function RootLayout({
             >
               Share feedback
             </a>
+            <span className="text-bg4">·</span>
+            <a href="/contact" className="hover:text-accent transition-colors">
+              Contact
+            </a>
           </div>
         </footer>
         <Analytics />

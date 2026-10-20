@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Club } from "@/lib/types";
 import MapDynamic from "./MapDynamic";
 import SuggestEditModal from "./SuggestEditModal";
+import { contactMailto } from "@/lib/contact";
 
 interface ClubDetailProps {
   club: Club;
@@ -383,6 +384,17 @@ export default function ClubDetail({ club: initialClub }: ClubDetailProps) {
                 {trainingLoading ? "Saving..." : trained ? "You've trained here!" : "I've trained here"}
               </button>
             </div>
+
+            {/* Gym owner contact */}
+            <p className="mt-4 text-text3 text-xs text-center">
+              Is this your gym?{" "}
+              <a
+                href={contactMailto(`Update ${club.name} (RollMap #${club.id})`)}
+                className="text-accent hover:underline"
+              >
+                Update or claim this page
+              </a>
+            </p>
 
             <SuggestEditModal
               club={club}

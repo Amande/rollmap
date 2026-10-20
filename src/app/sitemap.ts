@@ -100,6 +100,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.8,
     },
     {
+      url: "https://rollmap.co/contact",
+      lastModified: new Date().toISOString(),
+      changeFrequency: "yearly",
+      priority: 0.3,
+    },
+    {
       url: "https://rollmap.co/blog",
       lastModified: new Date().toISOString(),
       changeFrequency: "weekly",
