@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import SearchBar from "@/components/SearchBar";
 import NearMeButton from "@/components/NearMeButton";
 import LandingMap from "./LandingMap";
-import { CONTACT_EMAIL } from "@/lib/contact";
+import { CONTACT_EMAIL, INSTAGRAM_URL } from "@/lib/contact";
 
 export const metadata: Metadata = {
   alternates: { canonical: "/" },
@@ -27,7 +27,7 @@ const jsonLd = [
     name: "RollMap",
     url: "https://rollmap.co",
     email: CONTACT_EMAIL,
-    sameAs: ["https://twitter.com/O_Amande"],
+    sameAs: ["https://twitter.com/O_Amande", INSTAGRAM_URL],
   },
 ];
 

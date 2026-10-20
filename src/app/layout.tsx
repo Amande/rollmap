@@ -85,6 +85,15 @@ export default function RootLayout({
             </a>
             <span className="text-bg4">·</span>
             <a
+              href="https://www.instagram.com/rollmap.contact/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-accent transition-colors"
+            >
+              Instagram
+            </a>
+            <span className="text-bg4">·</span>
+            <a
               href="https://forms.gle/H78qhnMWuXmrHxnA6"
               target="_blank"
               rel="noopener noreferrer"

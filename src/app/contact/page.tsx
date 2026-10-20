@@ -1,6 +1,6 @@
 import Link from "next/link";
 import type { Metadata } from "next";
-import { CONTACT_EMAIL, contactMailto } from "@/lib/contact";
+import { CONTACT_EMAIL, INSTAGRAM_HANDLE, INSTAGRAM_URL, contactMailto } from "@/lib/contact";
 
 export const metadata: Metadata = {
   title: "Contact",
@@ -57,6 +57,10 @@ export default function ContactPage() {
           Reach us at{" "}
           <a href={`mailto:${CONTACT_EMAIL}`} className="text-accent hover:underline">
             {CONTACT_EMAIL}
+          </a>
+          {" "}or on Instagram{" "}
+          <a href={INSTAGRAM_URL} target="_blank" rel="noopener noreferrer" className="text-accent hover:underline">
+            {INSTAGRAM_HANDLE}
           </a>
           . We usually reply within a few days. Oss.
         </p>
