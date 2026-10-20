@@ -5,6 +5,7 @@ Flux : preview (cree des brouillons en base + les affiche) -> validation d'Amand
 Rien n'est envoye sans la commande `send`.
 
   python3 scripts/outreach.py preview [--size 10]   # nouveau lot J0 (clubs FR avec email, jamais contactes)
+  python3 scripts/outreach.py preview-file contacts.json --lot us-1 [--lang en]  # lot depuis un fichier de contacts
   python3 scripts/outreach.py followups             # brouillons de relance J+7 (1 seule relance)
   python3 scripts/outreach.py send --lot LOT        # envoie les brouillons du lot (10-20/jour max)
   python3 scripts/outreach.py cancel --lot LOT      # annule les brouillons du lot
@@ -138,6 +139,50 @@ Amandine — RollMap
     return subject, body
 
 
+def j0_email_en(club):
+    name, city = pretty_name(club["name"]), pretty_city(club["city"] or "")
+    link = f"{SITE}/club/{club['id']}"
+    subject = f"{name} is on RollMap — is your listing up to date?"
+    body = f"""Hi,
+
+I'm Amandine, a BJJ addict who travels a lot. I built RollMap (https://rollmap.co), a free map of BJJ gyms around the world to help traveling grapplers find a place to train.
+
+{name} is already listed: {link}
+
+So that people visiting {city} can come and roll with you, could you confirm 3 things:
+1. Do you welcome visitors / drop-ins?
+2. If so, what's the drop-in price, and should they message you first?
+3. Do you run an open mat?
+
+A one-line reply is enough, I'll update your page right away. You can also edit it directly with the "Suggest an edit" button.
+
+Not interested? Just tell me and I won't follow up.
+
+Thanks and good training,
+Oss!
+Amandine — RollMap
+"""
+    return subject, body
+
+
+def relance_email_en(club, original_subject):
+    name = pretty_name(club["name"])
+    link = f"{SITE}/club/{club['id']}"
+    subject = original_subject if original_subject.startswith("Re:") else f"Re: {original_subject}"
+    body = f"""Hi,
+
+Quick follow-up on my message from last week: do you welcome drop-in visitors at {name}?
+
+A one-line reply is enough (yes/no, price, open mat), I'll update your page: {link}
+
+Not interested? Just tell me and I won't follow up again.
+
+Oss!
+Amandine — RollMap
+"""
+    return subject, body
+
+
 def print_drafts(drafts, clubs_by_id):
     for i, d in enumerate(drafts, 1):
         club = clubs_by_id[d["club_id"]]
@@ -191,6 +236,29 @@ def cmd_preview(args):
     print(f"\nPour envoyer : python3 scripts/outreach.py send --lot {lot}")
 
 
+def cmd_preview_file(args):
+    """Drafts from a JSON contacts file [{"club_id": 1, "email": "x@y.com"}] (emails stay out of the public listing)."""
+    contacts = json.loads(Path(args.file).read_text())[: min(args.size, MAX_PER_LOT)]
+    contacted = {r["club_id"] for r in fetch_all("outreach?select=club_id&status=neq.cancelled")}
+    stopped = {r["to_address"] for r in fetch_all("outreach?select=to_address&status=eq.stop")}
+    contacts = [c for c in contacts if c["club_id"] not in contacted and c["email"].lower() not in stopped]
+    if not contacts:
+        print("Aucun contact eligible.")
+        return
+    ids = ",".join(str(c["club_id"]) for c in contacts)
+    clubs = {c["id"]: c for c in fetch_all(f"clubs?select=id,name,city&id=in.({ids})")}
+    template = j0_email_en if args.lang == "en" else j0_email
+    rows = []
+    for c in contacts:
+        subject, body = template(clubs[c["club_id"]])
+        rows.append({"club_id": c["club_id"], "channel": "email", "step": "j0", "to_address": c["email"],
+                     "lot": args.lot, "status": "draft", "subject": subject, "body": body})
+    drafts = db("POST", "outreach", rows)
+    print(f"## Lot {args.lot} — {len(drafts)} brouillons (rien n'est envoye)")
+    print_drafts(drafts, clubs)
+    print(f"\nPour envoyer : python3 scripts/outreach.py send --lot {args.lot}")
+
+
 def cmd_followups(args):
     cutoff = (datetime.now(timezone.utc) - timedelta(days=RELANCE_AFTER_DAYS)).isoformat()
     sent = fetch_all(f"outreach?select=*&channel=eq.email&step=eq.j0&status=eq.sent&sent_at=lt.{urllib.parse.quote(cutoff)}")
@@ -206,7 +274,8 @@ def cmd_followups(args):
     rows = []
     for r in todo:
         original = r["subject"] or j0_email({**clubs[r["club_id"]], "email": r["to_address"]})[0]
-        subject, body = relance_email(clubs[r["club_id"]], original)
+        relance = relance_email_en if "is on RollMap" in original else relance_email
+        subject, body = relance(clubs[r["club_id"]], original)
         rows.append({"club_id": r["club_id"], "channel": "email", "step": "relance", "to_address": r["to_address"],
                      "lot": lot, "status": "draft", "subject": subject, "body": body,
                      "notes": f"in_reply_to:{r['message_id']}" if r.get("message_id") else None})
@@ -278,13 +347,15 @@ def main():
     parser = argparse.ArgumentParser(description="RollMap outreach clubs")
     sub = parser.add_subparsers(dest="cmd", required=True)
     p = sub.add_parser("preview"); p.add_argument("--size", type=int, default=10); p.add_argument("--lot")
+    p = sub.add_parser("preview-file"); p.add_argument("file"); p.add_argument("--lot", required=True)
+    p.add_argument("--lang", choices=["fr", "en"], default="en"); p.add_argument("--size", type=int, default=10)
     p = sub.add_parser("followups"); p.add_argument("--lot")
     p = sub.add_parser("send"); p.add_argument("--lot", required=True)
     p = sub.add_parser("cancel"); p.add_argument("--lot", required=True)
     sub.add_parser("status")
     args = parser.parse_args()
     load_env()
-    {"preview": cmd_preview, "followups": cmd_followups, "send": cmd_send,
+    {"preview": cmd_preview, "preview-file": cmd_preview_file, "followups": cmd_followups, "send": cmd_send,
      "cancel": cmd_cancel, "status": cmd_status}[args.cmd](args)
 
 
