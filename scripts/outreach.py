@@ -83,7 +83,7 @@ def pretty_name(name):
     words = []
     for w in name.split():
         core = w.strip("()-")
-        words.append(w if core in KEEP_UPPER else w.capitalize())
+        words.append(w if core in KEEP_UPPER else "-".join(part.capitalize() for part in w.split("-")))
     return " ".join(words)
 
 
@@ -148,7 +148,7 @@ def print_drafts(drafts, clubs_by_id):
 
 def cmd_preview(args):
     size = min(args.size, MAX_PER_LOT)
-    contacted = {r["club_id"] for r in fetch_all("outreach?select=club_id")}
+    contacted = {r["club_id"] for r in fetch_all("outreach?select=club_id&status=neq.cancelled")}
     stopped_addresses = {r["to_address"] for r in fetch_all("outreach?select=to_address&status=eq.stop")}
     clubs = fetch_all("clubs?select=id,name,city,email,nb_licencies&country=eq.France&email=not.is.null")
 
@@ -158,16 +158,23 @@ def cmd_preview(args):
         size_n = int("".join(ch for ch in (c["nb_licencies"] or "0") if ch.isdigit()) or 0)
         return (city_rank, -size_n)
 
+    # Eligible clubs grouped by city, biggest clubs first within each city
     seen_emails = set()
-    candidates = []
+    by_city = {}
     for c in sorted(clubs, key=rank):
         email = (c["email"] or "").strip().lower()
         if c["id"] in contacted or "@" not in email or email in stopped_addresses or email in seen_emails:
             continue
         seen_emails.add(email)
-        candidates.append(c)
-        if len(candidates) == size:
-            break
+        by_city.setdefault((c["city"] or "").lower(), []).append(c)
+
+    # Round-robin across cities (priority cities first) so each batch mixes cities
+    queues = list(by_city.values())
+    candidates = []
+    while len(candidates) < size and any(queues):
+        for queue in queues:
+            if queue and len(candidates) < size:
+                candidates.append(queue.pop(0))
     if not candidates:
         print("Aucun club eligible.")
         return
@@ -187,7 +194,7 @@ def cmd_preview(args):
 def cmd_followups(args):
     cutoff = (datetime.now(timezone.utc) - timedelta(days=RELANCE_AFTER_DAYS)).isoformat()
     sent = fetch_all(f"outreach?select=*&channel=eq.email&step=eq.j0&status=eq.sent&sent_at=lt.{urllib.parse.quote(cutoff)}")
-    already = {r["club_id"] for r in fetch_all("outreach?select=club_id&step=eq.relance")}
+    already = {r["club_id"] for r in fetch_all("outreach?select=club_id&step=eq.relance&status=neq.cancelled")}
     closed = {r["club_id"] for r in fetch_all("outreach?select=club_id&status=in.(replied,stop,bounced)")}
     todo = [r for r in sent if r["club_id"] not in already and r["club_id"] not in closed][:MAX_PER_LOT]
     if not todo:
