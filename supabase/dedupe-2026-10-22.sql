@@ -6,7 +6,9 @@
 
 BEGIN;
 
-CREATE TEMP TABLE dedupe_pairs (delete_id INTEGER PRIMARY KEY, keep_id INTEGER NOT NULL) ON COMMIT DROP;
+DROP TABLE IF EXISTS dedupe_pairs;
+CREATE TABLE dedupe_pairs (delete_id INTEGER PRIMARY KEY, keep_id INTEGER NOT NULL);
+ALTER TABLE dedupe_pairs ENABLE ROW LEVEL SECURITY;
 INSERT INTO dedupe_pairs (delete_id, keep_id) VALUES
   (5288, 1240),
   (5654, 635),
@@ -97,5 +99,7 @@ SELECT
   (SELECT count(*) FROM clubs_backup_20261022) AS sauvegardees,
   (SELECT count(*) FROM clubs WHERE id IN (SELECT delete_id FROM dedupe_pairs)) AS restantes,
   (SELECT relrowsecurity FROM pg_class WHERE relname = 'clubs_backup_20261022') AS rls_backup;
+
+DROP TABLE dedupe_pairs;
 
 COMMIT;
