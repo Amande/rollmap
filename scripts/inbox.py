@@ -85,7 +85,7 @@ def text_body(msg):
 
 
 def classify(msg, sender, subject, body):
-    if re.search(r"(^|[.@])(no-?reply|noreply|notifications?)[@.]|@accounts\.google\.com$|googlecommunityteam", sender, re.I):
+    if re.search(r"(^|[.@])(no-?reply|noreply|notifications?)[@.]|@accounts\.google\.com$|googlecommunityteam|@mail\.instagram\.com$|facebookmail\.com$", sender, re.I):
         return "system"
     if re.search(r"mailer-daemon|postmaster", sender, re.I) or \
             re.search(r"delivery status notification|undeliver|non remis|address not found", subject, re.I):
