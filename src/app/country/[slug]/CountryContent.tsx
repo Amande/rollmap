@@ -5,6 +5,7 @@ import { Club, ClubFilters } from "@/lib/types";
 import ClubCard from "@/components/ClubCard";
 import FilterBar from "@/components/FilterBar";
 import MapDynamic from "@/components/MapDynamic";
+import { applyFilters, verifiedFirst } from "@/lib/filters";
 
 interface CountryContentProps {
   clubs: Club[];
@@ -15,13 +16,7 @@ export default function CountryContent({ clubs, country }: CountryContentProps) 
   const [filters, setFilters] = useState<ClubFilters>({});
   const [hoveredClub, setHoveredClub] = useState<Club | null>(null);
 
-  // Apply filters
-  let filtered = clubs;
-  if (filters.gi) filtered = filtered.filter((c) => c.gi);
-  if (filters.nogi) filtered = filtered.filter((c) => c.nogi);
-  if (filters.open_mat) filtered = filtered.filter((c) => c.open_mat);
-  if (filters.drop_in) filtered = filtered.filter((c) => c.drop_in);
-  if (filters.kids_friendly) filtered = filtered.filter((c) => c.kids_friendly);
+  const filtered = verifiedFirst(applyFilters(clubs, filters));
 
   // Map center
   const withCoords = filtered.filter((c) => c.lat && c.lng);

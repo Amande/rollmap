@@ -27,6 +27,7 @@ export interface Club {
 }
 
 export interface ClubFilters {
+  verified?: boolean;
   gi?: boolean;
   nogi?: boolean;
   open_mat?: boolean;

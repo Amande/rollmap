@@ -64,6 +64,7 @@ export default async function CityPage({ params }: CityPageProps) {
 
   const clubs = data as Club[];
   const city = clubs[0]?.city || slugToCity(slug);
+  const verifiedCount = clubs.filter((c) => c.verified).length;
   const country = clubs[0]?.country || "";
 
   // Breadcrumb JSON-LD
@@ -137,6 +138,11 @@ export default async function CityPage({ params }: CityPageProps) {
         <p className="text-text2 text-sm">
           {clubs.length} Brazilian Jiu-Jitsu {clubs.length > 1 ? "clubs" : "club"}
           {country ? ` in ${city}, ${country}` : ` in ${city}`}
+          {verifiedCount > 0 && (
+            <span className="text-accent font-semibold">
+              {" "}· ✓ {verifiedCount} verified by the gym
+            </span>
+          )}
         </p>
       </div>
 

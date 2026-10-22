@@ -32,6 +32,14 @@ export default function ClubCard({ club, onHover, distance }: ClubCardProps) {
         )}
       </div>
       <div className="flex gap-1.5 flex-wrap">
+        {club.verified && (
+          <span
+            className="inline-block px-2 py-0.5 rounded text-[0.7rem] font-bold uppercase tracking-wide bg-accent text-bg"
+            title="Info confirmed by the gym"
+          >
+            ✓ Verified
+          </span>
+        )}
         {club.gi && (
           <span className="inline-block px-2 py-0.5 rounded text-[0.7rem] font-bold uppercase tracking-wide bg-badge-gi-bg text-badge-gi">
             Gi

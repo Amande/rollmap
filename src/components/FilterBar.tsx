@@ -8,6 +8,7 @@ interface FilterBarProps {
 }
 
 const FILTER_OPTIONS: { key: keyof ClubFilters; label: string }[] = [
+  { key: "verified", label: "✓ Verified" },
   { key: "gi", label: "Gi" },
   { key: "nogi", label: "No-Gi" },
   { key: "open_mat", label: "Open Mat" },

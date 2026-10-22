@@ -8,6 +8,7 @@ import ClubCard from "@/components/ClubCard";
 import MapDynamic from "@/components/MapDynamic";
 import { Club, ClubFilters } from "@/lib/types";
 import { supabase } from "@/lib/supabase";
+import { applyFilters, verifiedFirst } from "@/lib/filters";
 
 /** Haversine distance in km between two lat/lng points */
 function haversineKm(
@@ -107,14 +108,10 @@ export default function SearchContent() {
 
   // Apply filters
   useEffect(() => {
-    let result = clubs;
-    if (filters.gi) result = result.filter((c) => c.gi);
-    if (filters.nogi) result = result.filter((c) => c.nogi);
-    if (filters.open_mat) result = result.filter((c) => c.open_mat);
-    if (filters.drop_in) result = result.filter((c) => c.drop_in);
-    if (filters.kids_friendly) result = result.filter((c) => c.kids_friendly);
-    setFilteredClubs(result);
-  }, [clubs, filters]);
+    const result = applyFilters(clubs, filters);
+    // Near me keeps the distance order; text searches show verified gyms first
+    setFilteredClubs(isGeoSearch ? result : verifiedFirst(result));
+  }, [clubs, filters, isGeoSearch]);
 
   // Compute map center
   const mapCenter = useCallback((): [number, number] => {
