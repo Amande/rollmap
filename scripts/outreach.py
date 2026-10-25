@@ -171,6 +171,39 @@ Amandine — RollMap
     return subject, body
 
 
+def j0_email_europeans(club):
+    """Lisbon-area gyms ahead of the IBJJF Europeans (Odivelas, Jan 13-23, 2027)."""
+    name = pretty_name(club["name"])
+    link = f"{SITE}/club/{club['id']}"
+    subject = f"{name} on RollMap — Europeans visitors in January"
+    body = f"""Hi,
+
+I'm Amandine, a BJJ addict who travels a lot. I built RollMap (https://rollmap.co), a free map of BJJ gyms around the world to help traveling grapplers find a place to train.
+
+The IBJJF Europeans are back in Odivelas from January 13 to 23, and thousands of athletes will be looking for a gym in Lisbon before and after their matches. We published a full guide for them (dates, fees, schedule, where to train): {SITE}/blog/ibjjf-europeans-2027-lisbon-where-to-train
+
+{name} is listed on RollMap: {link}
+
+To send the right people your way, could you confirm:
+1. Do you welcome visitors / drop-ins during Europeans weeks?
+2. If yes, what's the drop-in price (or week pass), and should they message you first?
+3. Do you run an open mat, or a lighter session for competitors?
+
+A one-line reply is enough, I'll update your page right away.
+
+And if RollMap looks useful, a link to your page (or to the Europeans guide) from your website or Instagram stories really helps visiting athletes find you.
+
+Hosting a women's open mat, a seminar or a guest instructor? Send me the details and I'll feature it.
+
+Not interested? Just tell me and I won't follow up.
+
+Thanks and good training,
+Oss!
+Amandine — RollMap
+"""
+    return subject, body
+
+
 def relance_email_en(club, original_subject):
     name = pretty_name(club["name"])
     link = f"{SITE}/club/{club['id']}"
@@ -253,7 +286,7 @@ def cmd_preview_file(args):
         return
     ids = ",".join(str(c["club_id"]) for c in contacts)
     clubs = {c["id"]: c for c in fetch_all(f"clubs?select=id,name,city&id=in.({ids})")}
-    template = j0_email_en if args.lang == "en" else j0_email
+    template = {"fr": j0_email, "en": j0_email_en, "europeans": j0_email_europeans}[args.lang]
     rows = []
     for c in contacts:
         subject, body = template(clubs[c["club_id"]])
@@ -280,7 +313,7 @@ def cmd_followups(args):
     rows = []
     for r in todo:
         original = r["subject"] or j0_email({**clubs[r["club_id"]], "email": r["to_address"]})[0]
-        relance = relance_email_en if "is on RollMap" in original else relance_email
+        relance = relance_email_en if ("is on RollMap" in original or "on RollMap —" in original) else relance_email
         subject, body = relance(clubs[r["club_id"]], original)
         rows.append({"club_id": r["club_id"], "channel": "email", "step": "relance", "to_address": r["to_address"],
                      "lot": lot, "status": "draft", "subject": subject, "body": body,
@@ -354,7 +387,7 @@ def main():
     sub = parser.add_subparsers(dest="cmd", required=True)
     p = sub.add_parser("preview"); p.add_argument("--size", type=int, default=10); p.add_argument("--lot")
     p = sub.add_parser("preview-file"); p.add_argument("file"); p.add_argument("--lot", required=True)
-    p.add_argument("--lang", choices=["fr", "en"], default="en"); p.add_argument("--size", type=int, default=10)
+    p.add_argument("--lang", choices=["fr", "en", "europeans"], default="en"); p.add_argument("--size", type=int, default=10)
     p = sub.add_parser("followups"); p.add_argument("--lot")
     p = sub.add_parser("send"); p.add_argument("--lot", required=True)
     p = sub.add_parser("cancel"); p.add_argument("--lot", required=True)

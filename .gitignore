@@ -45,3 +45,4 @@ scripts/inbox-pending.json
 scripts/decisions*.json
 scripts/contacts*.json
 scripts/__pycache__/
+scripts/contacts-*.json
