@@ -1,119 +1,87 @@
 import type { MetadataRoute } from "next";
-import { createClient } from "@supabase/supabase-js";
 import { getAllPosts } from "@/content/blog";
+import { supabase } from "@/lib/supabase";
+import {
+  SITE_URL,
+  MIN_CLUBS_INDEXABLE_CITY,
+  cityToSlug,
+  countryToSlug,
+  fetchAllRows,
+  getPlaceStats,
+  isIndexableClub,
+} from "@/lib/seo";
+
+// Regenerated at most every 6 hours
+export const revalidate = 21600;
 
 // Skip corrupted names from scraped data (control chars, stray symbols)
 const VALID_PLACE_NAME = /^[\p{L}\p{M}\p{N}\s\-'’´`./()]+$/u;
 
-export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const supabase = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-  );
+// Pages whose content only changes when we edit the code
+const STATIC_PAGES_UPDATED = "2026-10-26";
 
-  // Fetch distinct cities and countries
-  const cityEntries: MetadataRoute.Sitemap = [];
-  const countryEntries: MetadataRoute.Sitemap = [];
-  const citySet = new Set<string>();
-  const countrySet = new Set<string>();
-  let cityPage = 0;
-  while (true) {
-    const { data: cityData } = await supabase
-      .from("clubs")
-      .select("city, country")
-      .not("city", "is", null)
-      .order("city")
-      .range(cityPage * 1000, (cityPage + 1) * 1000 - 1);
-    if (!cityData || cityData.length === 0) break;
-    for (const row of cityData) {
-      if (row.city && VALID_PLACE_NAME.test(row.city)) citySet.add(row.city);
-      if (row.country && VALID_PLACE_NAME.test(row.country)) countrySet.add(row.country);
-    }
-    cityPage++;
-  }
-  for (const city of citySet) {
-    const slug = city.toLowerCase().replace(/\s+/g, "-");
-    cityEntries.push({
-      url: `https://rollmap.co/city/${encodeURIComponent(slug)}`,
-      lastModified: new Date().toISOString(),
-      changeFrequency: "weekly",
-      priority: 0.8,
-    });
-  }
-  for (const country of countrySet) {
-    const slug = country.toLowerCase().replace(/\s+/g, "-");
-    countryEntries.push({
-      url: `https://rollmap.co/country/${encodeURIComponent(slug)}`,
-      lastModified: new Date().toISOString(),
+/**
+ * Only canonical, indexable, 200 URLs, with a real <lastmod>:
+ * club = its updated_at, city/country = latest update of their clubs.
+ */
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  const [{ cities, countries, lastmod }, clubs] = await Promise.all([
+    getPlaceStats(),
+    fetchAllRows<{
+      id: number;
+      updated_at: string | null;
+      website: string | null;
+      instagram: string | null;
+      phone: string | null;
+      email: string | null;
+      schedule_notes: string | null;
+      drop_in_price: string | null;
+    }>((from, to) =>
+      supabase
+        .from("clubs")
+        .select("id, updated_at, website, instagram, phone, email, schedule_notes, drop_in_price")
+        .order("id")
+        .range(from, to)
+    ),
+  ]);
+
+  const posts = getAllPosts();
+  const latestPost = posts.reduce((m, p) => ((p.updated ?? p.date) > m ? p.updated ?? p.date : m), "");
+
+  const countryEntries: MetadataRoute.Sitemap = [...countries.values()]
+    .filter((c) => VALID_PLACE_NAME.test(c.name))
+    .map((c) => ({
+      url: `${SITE_URL}/country/${encodeURIComponent(countryToSlug(c.name))}`,
+      lastModified: c.lastmod ?? undefined,
       changeFrequency: "weekly",
       priority: 0.9,
-    });
-  }
+    }));
 
-  // Fetch only "rich" clubs (with enough content to be indexable)
-  // A club is rich if it has 1+ contact/info signal
-  const clubEntries: MetadataRoute.Sitemap = [];
-  let page = 0;
+  const cityEntries: MetadataRoute.Sitemap = [...cities.values()]
+    .filter((c) => c.count >= MIN_CLUBS_INDEXABLE_CITY && VALID_PLACE_NAME.test(c.name))
+    .map((c) => ({
+      url: `${SITE_URL}/city/${encodeURIComponent(cityToSlug(c.name))}`,
+      lastModified: c.lastmod ?? undefined,
+      changeFrequency: "weekly",
+      priority: 0.8,
+    }));
 
-  while (true) {
-    const { data } = await supabase
-      .from("clubs")
-      .select("id, updated_at, website, instagram, phone, email, schedule_notes, drop_in_price")
-      .order("id")
-      .range(page * 1000, (page + 1) * 1000 - 1);
-
-    if (!data || data.length === 0) break;
-
-    for (const club of data) {
-      const signals = [
-        !!club.website,
-        !!club.instagram,
-        !!club.phone,
-        !!club.email,
-        !!club.schedule_notes,
-        !!club.drop_in_price,
-      ].filter(Boolean).length;
-      if (signals < 1) continue; // skip empty clubs from sitemap
-
-      clubEntries.push({
-        url: `https://rollmap.co/club/${club.id}`,
-        lastModified: club.updated_at || new Date().toISOString(),
-        changeFrequency: "monthly",
-        priority: 0.7,
-      });
-    }
-
-    page++;
-  }
+  const clubEntries: MetadataRoute.Sitemap = clubs.filter(isIndexableClub).map((club) => ({
+    url: `${SITE_URL}/club/${club.id}`,
+    lastModified: club.updated_at ?? undefined,
+    changeFrequency: "monthly",
+    priority: 0.7,
+  }));
 
   return [
-    {
-      url: "https://rollmap.co",
-      lastModified: new Date().toISOString(),
-      changeFrequency: "weekly",
-      priority: 1,
-    },
-    {
-      url: "https://rollmap.co/search",
-      lastModified: new Date().toISOString(),
-      changeFrequency: "weekly",
-      priority: 0.8,
-    },
-    {
-      url: "https://rollmap.co/contact",
-      lastModified: new Date().toISOString(),
-      changeFrequency: "yearly",
-      priority: 0.3,
-    },
-    {
-      url: "https://rollmap.co/blog",
-      lastModified: new Date().toISOString(),
-      changeFrequency: "weekly",
-      priority: 0.8,
-    },
-    ...getAllPosts().map((p) => ({
-      url: `https://rollmap.co/blog/${p.slug}`,
-      lastModified: p.date,
+    { url: SITE_URL, lastModified: lastmod ?? undefined, changeFrequency: "weekly", priority: 1 },
+    { url: `${SITE_URL}/countries`, lastModified: lastmod ?? undefined, changeFrequency: "weekly", priority: 0.9 },
+    { url: `${SITE_URL}/blog`, lastModified: latestPost || undefined, changeFrequency: "weekly", priority: 0.8 },
+    { url: `${SITE_URL}/about`, lastModified: STATIC_PAGES_UPDATED, changeFrequency: "monthly", priority: 0.5 },
+    { url: `${SITE_URL}/contact`, lastModified: STATIC_PAGES_UPDATED, changeFrequency: "yearly", priority: 0.3 },
+    ...posts.map((p) => ({
+      url: `${SITE_URL}/blog/${p.slug}`,
+      lastModified: p.updated ?? p.date,
       changeFrequency: "monthly" as const,
       priority: 0.7,
     })),

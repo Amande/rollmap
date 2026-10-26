@@ -219,6 +219,11 @@ def cmd_apply(args):
                 update["verified"] = True
                 db("PATCH", f"clubs?id=eq.{d['club_id']}", update)
                 print(f"uid {d['uid']} : fiche #{d['club_id']} mise a jour ({', '.join(sorted(update))})")
+                try:  # tell search engines the page changed
+                    from indexnow import club_urls, submit
+                    submit(club_urls([d["club_id"]]))
+                except Exception as e:  # never block the apply on IndexNow
+                    print(f"  IndexNow non notifie : {e}")
         if original.get("outreach_id") and d.get("outreach_status"):
             db("PATCH", f"outreach?id=eq.{original['outreach_id']}",
                {"status": d["outreach_status"], "replied_at": original.get("date") or datetime.now(timezone.utc).isoformat(),

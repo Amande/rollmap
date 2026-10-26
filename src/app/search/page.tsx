@@ -12,6 +12,8 @@ export const metadata: Metadata = {
     type: "website",
   },
   alternates: { canonical: "/search" },
+  // Results load client-side: nothing to index, but links stay followable
+  robots: { index: false, follow: true },
 };
 
 export default function SearchPage() {
