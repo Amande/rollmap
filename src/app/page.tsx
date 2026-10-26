@@ -115,6 +115,12 @@ export default function Home() {
                 {name} <span className="text-text3">({clubs})</span>
               </a>
             ))}
+            <a
+              href="/countries"
+              className="bg-accent-bg text-accent px-3.5 py-1.5 rounded-full text-xs font-semibold border border-accent hover:bg-accent hover:text-bg transition-all"
+            >
+              All countries &rarr;
+            </a>
           </div>
         </div>
 

@@ -71,6 +71,10 @@ export default function RootLayout({
         <footer className="text-center py-5 text-text3 text-xs border-t border-bg3 space-y-2">
           <p>RollMap — Find BJJ gyms to train, anywhere.</p>
           <div className="flex items-center justify-center gap-4">
+            <a href="/countries" className="hover:text-accent transition-colors">
+              Countries
+            </a>
+            <span className="text-bg4">·</span>
             <a href="/blog" className="hover:text-accent transition-colors">
               Blog
             </a>

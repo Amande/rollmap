@@ -5,18 +5,20 @@ import { Club, ClubFilters } from "@/lib/types";
 import ClubCard from "@/components/ClubCard";
 import FilterBar from "@/components/FilterBar";
 import MapDynamic from "@/components/MapDynamic";
-import { applyFilters, verifiedFirst } from "@/lib/filters";
+import { applyFilters } from "@/lib/filters";
 
 interface CountryContentProps {
   clubs: Club[];
   country: string;
+  /** Total clubs in the country (the list shows a selection) */
+  total: number;
 }
 
-export default function CountryContent({ clubs, country }: CountryContentProps) {
+export default function CountryContent({ clubs, country, total }: CountryContentProps) {
   const [filters, setFilters] = useState<ClubFilters>({});
   const [hoveredClub, setHoveredClub] = useState<Club | null>(null);
 
-  const filtered = verifiedFirst(applyFilters(clubs, filters));
+  const filtered = applyFilters(clubs, filters); // already ordered: verified first
 
   // Map center
   const withCoords = filtered.filter((c) => c.lat && c.lng);
@@ -36,7 +38,9 @@ export default function CountryContent({ clubs, country }: CountryContentProps) 
         {/* Club list */}
         <div className="flex-1 overflow-y-auto p-3 flex flex-col gap-2.5 max-h-[50vh] md:max-h-[calc(100vh-300px)] md:max-w-[420px]">
           <p className="text-text3 text-xs px-1">
-            {filtered.length} club{filtered.length > 1 ? "s" : ""} in {country}
+            {total > clubs.length
+              ? `${filtered.length} featured gyms out of ${total.toLocaleString("en-US")} in ${country}, verified first. Open a city for its full list.`
+              : `${filtered.length} club${filtered.length > 1 ? "s" : ""} in ${country}`}
           </p>
           {filtered.map((club) => (
             <ClubCard
