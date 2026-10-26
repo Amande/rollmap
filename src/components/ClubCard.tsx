@@ -1,5 +1,6 @@
 import { Club } from "@/lib/types";
 import Link from "next/link";
+import { prettyName } from "@/lib/names";
 
 interface ClubCardProps {
   club: Club;
@@ -15,7 +16,7 @@ export default function ClubCard({ club, onHover, distance }: ClubCardProps) {
       onMouseEnter={() => onHover?.(club)}
       onMouseLeave={() => onHover?.(null)}
     >
-      <h3 className="text-base font-bold mb-1 text-text">{club.name}</h3>
+      <h3 className="text-base font-bold mb-1 text-text">{prettyName(club.name)}</h3>
       <div className="flex items-center gap-2 flex-wrap mb-2">
         {club.city && (
           <span className="text-text3 text-xs">{club.city}</span>

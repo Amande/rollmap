@@ -6,6 +6,7 @@ import type { Metadata } from "next";
 import CityContent from "./CityContent";
 import { getEventPostsForCity } from "@/content/blog";
 import { countryToSlug, MIN_CLUBS_INDEXABLE_CITY, SITE_URL } from "@/lib/seo";
+import { prettyName } from "@/lib/names";
 
 // Rebuilt at most every 6 hours (ISR)
 export const revalidate = 21600;
@@ -34,23 +35,33 @@ function pageNumber(raw?: string): number {
   return Number.isInteger(n) && n > 1 ? n : 1;
 }
 
-async function countClubs(slug: string): Promise<number> {
-  const { count } = await supabase
-    .from("clubs")
-    .select("id", { count: "exact", head: true })
-    .ilike("city", slugToCityPattern(slug));
+/** A city name can exist in several countries (London UK / London Canada) or carry a wrong
+ * country in source data: the page belongs to the country with the most gyms. */
+async function getCityCountry(slug: string): Promise<string | null> {
+  const { data } = await supabase.from("clubs").select("country").ilike("city", slugToCityPattern(slug)).limit(1000);
+  const counts = new Map<string, number>();
+  for (const r of data ?? []) if (r.country) counts.set(r.country, (counts.get(r.country) ?? 0) + 1);
+  return [...counts.entries()].sort((a, b) => b[1] - a[1])[0]?.[0] ?? null;
+}
+
+async function countClubs(slug: string, country: string | null): Promise<number> {
+  let q = supabase.from("clubs").select("id", { count: "exact", head: true }).ilike("city", slugToCityPattern(slug));
+  if (country) q = q.eq("country", country);
+  const { count } = await q;
   return count ?? 0;
 }
 
 export async function generateMetadata({ params, searchParams }: CityPageProps): Promise<Metadata> {
   const { slug } = await params;
   const page = pageNumber((await searchParams).page);
-  const count = await countClubs(slug);
+  const country = await getCityCountry(slug);
+  const count = await countClubs(slug, country);
   if (!count) return { title: `BJJ gyms in ${slugToCity(slug)}` };
 
-  const { data } = await supabase.from("clubs").select("city, country").ilike("city", slugToCityPattern(slug)).limit(1);
+  let nameQuery = supabase.from("clubs").select("city").ilike("city", slugToCityPattern(slug));
+  if (country) nameQuery = nameQuery.eq("country", country);
+  const { data } = await nameQuery.limit(1);
   const city = data?.[0]?.city ?? slugToCity(slug);
-  const country = data?.[0]?.country;
   const pageSuffix = page > 1 ? ` (page ${page})` : "";
   const title = `BJJ gyms in ${city} — ${count} club${count > 1 ? "s" : ""}${pageSuffix}`;
   const description = `${count} Brazilian Jiu-Jitsu gym${count > 1 ? "s" : ""} in ${city}${country ? `, ${country}` : ""}: drop-in prices, open mats, Gi & No-Gi, contacts and map.`;
@@ -68,14 +79,14 @@ export async function generateMetadata({ params, searchParams }: CityPageProps):
 export default async function CityPage({ params, searchParams }: CityPageProps) {
   const { slug } = await params;
   const page = pageNumber((await searchParams).page);
-  const total = await countClubs(slug);
+  const mainCountry = await getCityCountry(slug);
+  const total = await countClubs(slug, mainCountry);
   const pages = Math.max(1, Math.ceil(total / PAGE_SIZE));
   if (!total || page > pages) notFound();
 
-  const { data, error } = await supabase
-    .from("clubs")
-    .select("*")
-    .ilike("city", slugToCityPattern(slug))
+  let listQuery = supabase.from("clubs").select("*").ilike("city", slugToCityPattern(slug));
+  if (mainCountry) listQuery = listQuery.eq("country", mainCountry);
+  const { data, error } = await listQuery
     .order("verified", { ascending: false })
     .order("name")
     .range((page - 1) * PAGE_SIZE, page * PAGE_SIZE - 1);
@@ -87,11 +98,20 @@ export default async function CityPage({ params, searchParams }: CityPageProps) 
   const country = clubs[0]?.country || "";
 
   // Summary figures for the whole city (not only this page)
-  const { data: stats } = await supabase
-    .from("clubs")
-    .select("verified, drop_in, open_mat, updated_at")
-    .ilike("city", slugToCityPattern(slug))
-    .limit(1000);
+  let statsQuery = supabase.from("clubs").select("verified, drop_in, open_mat, updated_at").ilike("city", slugToCityPattern(slug));
+  if (mainCountry) statsQuery = statsQuery.eq("country", mainCountry);
+  const { data: stats } = await statsQuery.limit(1000);
+
+  // Gyms with the same city name in other countries: listed separately so they stay linked
+  const { data: elsewhereData } = mainCountry
+    ? await supabase
+        .from("clubs")
+        .select("id, name, city, country")
+        .ilike("city", slugToCityPattern(slug))
+        .neq("country", mainCountry)
+        .limit(50)
+    : { data: [] };
+  const elsewhere = elsewhereData ?? [];
   const verifiedCount = (stats ?? []).filter((c) => c.verified).length;
   const dropInCount = (stats ?? []).filter((c) => c.drop_in).length;
   const openMatCount = (stats ?? []).filter((c) => c.open_mat).length;
@@ -188,6 +208,24 @@ export default async function CityPage({ params, searchParams }: CityPageProps) 
       <main className="flex-1">
         <CityContent clubs={clubs} city={city} />
       </main>
+
+      {page === 1 && elsewhere.length > 0 && (
+        <section className="px-5 py-6 md:px-8 border-t border-bg3">
+          <h2 className="text-sm font-bold text-text2 uppercase tracking-widest mb-3">
+            Other places named {city}
+          </h2>
+          <ul className="flex flex-col gap-1.5 text-sm">
+            {elsewhere.map((c) => (
+              <li key={c.id}>
+                <Link href={`/club/${c.id}`} className="text-accent hover:underline">
+                  {prettyName(c.name)}
+                </Link>
+                <span className="text-text3"> · {c.city}{c.country ? `, ${c.country}` : ""}</span>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
 
       {pages > 1 && (
         <nav className="flex justify-center gap-2 py-6 border-t border-bg3" aria-label="Pagination">

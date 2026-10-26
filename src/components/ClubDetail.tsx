@@ -6,6 +6,7 @@ import { Club } from "@/lib/types";
 import MapDynamic from "./MapDynamic";
 import SuggestEditModal from "./SuggestEditModal";
 import { contactMailto } from "@/lib/contact";
+import { prettyName } from "@/lib/names";
 
 interface ClubDetailProps {
   club: Club;
@@ -125,7 +126,7 @@ export default function ClubDetail({ club: initialClub }: ClubDetailProps) {
             {/* Club name + badges */}
             <div className="mb-6">
               <h1 className="text-2xl md:text-3xl font-extrabold mb-3 leading-tight">
-                {club.name}
+                {prettyName(club.name)}
               </h1>
               <div className="flex gap-1.5 flex-wrap">
                 {club.gi && (
@@ -165,7 +166,7 @@ export default function ClubDetail({ club: initialClub }: ClubDetailProps) {
             {/* Unique description for SEO */}
             <section className="mb-6">
               <p className="text-text2 text-sm leading-relaxed">
-                <strong className="text-text">{club.name}</strong> is a Brazilian Jiu-Jitsu academy
+                <strong className="text-text">{prettyName(club.name)}</strong> is a Brazilian Jiu-Jitsu academy
                 {club.city ? <> located in <strong className="text-text">{club.city}</strong></> : null}
                 {club.country ? <>, {club.country}</> : null}.
                 {" "}This gym offers

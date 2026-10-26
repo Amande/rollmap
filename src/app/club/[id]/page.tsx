@@ -4,22 +4,13 @@ import ClubDetail from "@/components/ClubDetail";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
+import { clubTitle, countryToSlug, cityToSlug, isIndexableClub, prettyName, SITE_URL } from "@/lib/seo";
+
+// Rebuilt at most every 6 hours (ISR); IndexNow pings on updates
+export const revalidate = 21600;
 
 interface ClubPageProps {
   params: Promise<{ id: string }>;
-}
-
-function hasRichContent(club: { website?: string | null; instagram?: string | null; phone?: string | null; email?: string | null; schedule_notes?: string | null; drop_in_price?: string | null }): boolean {
-  // Club is "rich" if it has at least 1 contact/info signal beyond name+address
-  const signals = [
-    !!club.website,
-    !!club.instagram,
-    !!club.phone,
-    !!club.email,
-    !!club.schedule_notes,
-    !!club.drop_in_price,
-  ].filter(Boolean).length;
-  return signals >= 1;
 }
 
 export async function generateMetadata({
@@ -36,10 +27,14 @@ export async function generateMetadata({
     return { title: "Club not found — RollMap" };
   }
 
-  const title = `${data.name} — BJJ in ${data.city || data.country}`;
-  const description = `${data.name} — Brazilian Jiu-Jitsu gym in ${data.city || ""}${data.country ? `, ${data.country}` : ""}. Find schedule, contact, and training info on RollMap.`;
+  const name = prettyName(data.name);
+  const place = [data.city, data.country].filter(Boolean).join(", ");
+  const title = clubTitle(data.name, data.city || data.country);
+  const drop = data.drop_in_price ? ` Drop-in: ${data.drop_in_price}.` : "";
+  let description = `${name}: Brazilian Jiu-Jitsu gym${place ? ` in ${place}` : ""}.${drop} Open mat, contact and map on RollMap.`;
+  if (description.length > 155) description = `${description.slice(0, 152).replace(/\s+\S*$/, "")}…`;
 
-  const rich = hasRichContent(data);
+  const rich = isIndexableClub(data);
 
   return {
     title,
@@ -68,27 +63,33 @@ export default async function ClubPage({ params }: ClubPageProps) {
 
   const club = data as Club;
 
-  // JSON-LD structured data
+  // JSON-LD structured data (only facts visible on the page)
+  const website = club.website ? (club.website.startsWith("http") ? club.website : `https://${club.website}`) : null;
+  const instagram = club.instagram
+    ? club.instagram.startsWith("http")
+      ? club.instagram
+      : `https://instagram.com/${club.instagram.replace("@", "").trim()}`
+    : null;
+  const sameAs = [website, instagram].filter(Boolean);
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "SportsActivityLocation",
-    name: club.name,
+    name: prettyName(club.name),
     sport: "Brazilian Jiu-Jitsu",
-    url: `https://rollmap.co/club/${club.id}`,
-    ...(club.address && { address: {
-      "@type": "PostalAddress",
-      streetAddress: club.address,
-      addressLocality: club.city || undefined,
-      addressCountry: club.country || undefined,
-    }}),
-    ...(club.lat && club.lng && { geo: {
-      "@type": "GeoCoordinates",
-      latitude: club.lat,
-      longitude: club.lng,
-    }}),
+    url: `${SITE_URL}/club/${club.id}`,
+    ...(club.address && {
+      address: {
+        "@type": "PostalAddress",
+        streetAddress: club.address,
+        addressLocality: club.city || undefined,
+        addressCountry: club.country || undefined,
+      },
+    }),
+    ...(club.lat && club.lng && { geo: { "@type": "GeoCoordinates", latitude: club.lat, longitude: club.lng } }),
     ...(club.phone && { telephone: club.phone }),
     ...(club.email && { email: club.email }),
-    ...(club.website && { url: club.website.startsWith("http") ? club.website : `https://${club.website}` }),
+    ...(sameAs.length > 0 && { sameAs }),
+    ...((club.drop_in_price || club.price) && { priceRange: club.drop_in_price || club.price }),
   };
 
   // Breadcrumb JSON-LD
@@ -97,9 +98,9 @@ export default async function ClubPage({ params }: ClubPageProps) {
     "@type": "BreadcrumbList",
     itemListElement: [
       { "@type": "ListItem", position: 1, name: "Home", item: "https://rollmap.co" },
-      ...(club.country ? [{ "@type": "ListItem", position: 2, name: club.country, item: `https://rollmap.co/country/${club.country.toLowerCase().replace(/\s+/g, "-")}` }] : []),
-      ...(club.city ? [{ "@type": "ListItem", position: club.country ? 3 : 2, name: club.city, item: `https://rollmap.co/city/${club.city.toLowerCase().replace(/\s+/g, "-")}` }] : []),
-      { "@type": "ListItem", position: (club.country ? 3 : 2) + (club.city ? 1 : 0), name: club.name },
+      ...(club.country ? [{ "@type": "ListItem", position: 2, name: club.country, item: `${SITE_URL}/country/${countryToSlug(club.country)}` }] : []),
+      ...(club.city ? [{ "@type": "ListItem", position: club.country ? 3 : 2, name: club.city, item: `${SITE_URL}/city/${cityToSlug(club.city)}` }] : []),
+      { "@type": "ListItem", position: (club.country ? 3 : 2) + (club.city ? 1 : 0), name: prettyName(club.name) },
     ],
   };
 
