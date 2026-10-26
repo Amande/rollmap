@@ -1,6 +1,15 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { Analytics } from "@vercel/analytics/next";
+import { Inter } from "next/font/google";
+
+// Self-hosted by Next.js: no render-blocking request to Google Fonts, no layout shift
+const inter = Inter({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700", "800"],
+  display: "swap",
+  variable: "--font-inter",
+});
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://rollmap.co"),
@@ -47,25 +56,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <head>
-        <link
-          href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
-          rel="stylesheet"
-        />
-        <link
-          rel="stylesheet"
-          href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-        />
-        <link
-          rel="stylesheet"
-          href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css"
-        />
-        <link
-          rel="stylesheet"
-          href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css"
-        />
-      </head>
+    <html lang="en" className={inter.variable}>
       <body className="bg-bg text-text font-sans min-h-screen antialiased flex flex-col">
         <div className="flex-1">{children}</div>
         <footer className="text-center py-5 text-text3 text-xs border-t border-bg3 space-y-2">

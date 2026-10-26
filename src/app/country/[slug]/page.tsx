@@ -14,6 +14,11 @@ import {
 // Rebuilt at most every 6 hours (ISR)
 export const revalidate = 21600;
 
+// Pages are generated on first visit, then cached and refreshed (ISR)
+export function generateStaticParams() {
+  return [];
+}
+
 const FEATURED_LIMIT = 100;
 
 interface CountryPageProps {

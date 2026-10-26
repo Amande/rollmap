@@ -3,6 +3,10 @@
 import { useEffect, useRef, useState } from "react";
 import L from "leaflet";
 import "leaflet.markercluster";
+// Map styles bundled with the (client-only) map chunk instead of render-blocking unpkg links
+import "leaflet/dist/leaflet.css";
+import "leaflet.markercluster/dist/MarkerCluster.css";
+import "leaflet.markercluster/dist/MarkerCluster.Default.css";
 import { Club } from "@/lib/types";
 
 // CARTO basemaps require an API key since 2026-09-23 (watermarked tiles otherwise)

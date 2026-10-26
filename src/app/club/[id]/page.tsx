@@ -9,6 +9,11 @@ import { clubTitle, countryToSlug, cityToSlug, isIndexableClub, prettyName, SITE
 // Rebuilt at most every 6 hours (ISR); IndexNow pings on updates
 export const revalidate = 21600;
 
+// Pages are generated on first visit, then cached and refreshed (ISR)
+export function generateStaticParams() {
+  return [];
+}
+
 interface ClubPageProps {
   params: Promise<{ id: string }>;
 }

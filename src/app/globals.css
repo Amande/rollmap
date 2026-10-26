@@ -17,7 +17,7 @@
   --color-badge-nogi: #c084fc;
   --color-badge-openmat-bg: rgba(245, 158, 11, 0.15);
   --color-badge-openmat: #fbbf24;
-  --font-family-sans: "Inter", system-ui, -apple-system, sans-serif;
+  --font-sans: var(--font-inter), system-ui, -apple-system, sans-serif;
 }
 
 /* Leaflet overrides for dark theme */
@@ -38,7 +38,7 @@
 
 .leaflet-popup-content {
   margin: 12px 16px;
-  font-family: "Inter", system-ui, -apple-system, sans-serif;
+  font-family: var(--font-inter), system-ui, -apple-system, sans-serif;
 }
 
 .leaflet-popup-content a {
@@ -53,7 +53,7 @@
   background-color: rgba(34, 211, 167, 0.6);
   color: #fff;
   font-weight: 700;
-  font-family: "Inter", system-ui, sans-serif;
+  font-family: var(--font-inter), system-ui, sans-serif;
 }
 
 .marker-cluster-medium {
@@ -63,7 +63,7 @@
   background-color: rgba(34, 211, 167, 0.7);
   color: #fff;
   font-weight: 700;
-  font-family: "Inter", system-ui, sans-serif;
+  font-family: var(--font-inter), system-ui, sans-serif;
 }
 
 .marker-cluster-large {
@@ -73,7 +73,7 @@
   background-color: rgba(34, 211, 167, 0.8);
   color: #fff;
   font-weight: 700;
-  font-family: "Inter", system-ui, sans-serif;
+  font-family: var(--font-inter), system-ui, sans-serif;
 }
 
 /* Scrollbar */
