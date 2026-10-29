@@ -3,10 +3,29 @@ import SearchBar from "@/components/SearchBar";
 import NearMeButton from "@/components/NearMeButton";
 import LandingMap from "./LandingMap";
 import { CONTACT_EMAIL, INSTAGRAM_URL } from "@/lib/contact";
+import { getPlaceStats } from "@/lib/seo";
+import { supabase } from "@/lib/supabase";
+import { getAllPosts } from "@/content/blog";
+
+// Figures refreshed daily (ISR)
+export const revalidate = 86400;
 
 export const metadata: Metadata = {
+  // Absolute: the brand is already in the title, no " | RollMap" suffix
+  title: { absolute: "BJJ Gyms Worldwide: Drop-ins & Open Mats | RollMap" },
+  description:
+    "Find 10,000+ Brazilian Jiu-Jitsu gyms in 114 countries: drop-in friendly gyms, open mats, Gi & No-Gi and visitor prices confirmed by the gyms.",
   alternates: { canonical: "/" },
 };
+
+async function getHomeFigures() {
+  const [{ countries, cities }, verified] = await Promise.all([
+    getPlaceStats(),
+    supabase.from("clubs").select("id", { count: "exact", head: true }).eq("verified", true),
+  ]);
+  const gyms = [...countries.values()].reduce((s, c) => s + c.count, 0);
+  return { gyms, countries: countries.size, cities: cities.size, verified: verified.count ?? 0 };
+}
 
 const jsonLd = [
   {
@@ -59,7 +78,9 @@ const POPULAR_COUNTRIES = [
   { name: "Germany", clubs: "80+" },
 ];
 
-export default function Home() {
+export default async function Home() {
+  const figures = await getHomeFigures();
+  const guides = getAllPosts().filter((p) => p.event).slice(0, 3);
   return (
     <div className="min-h-screen flex flex-col">
       {jsonLd.map((ld, i) => (
@@ -83,10 +104,10 @@ export default function Home() {
       {/* Hero */}
       <main className="flex-1 flex flex-col items-center justify-center px-5 py-10 text-center">
         <h1 className="text-4xl sm:text-5xl font-extrabold leading-tight tracking-tight mb-2">
-          Find your next <span className="text-accent">roll</span>.
+          Find BJJ gyms to train, <span className="text-accent">anywhere</span>.
         </h1>
         <p className="text-text2 text-lg mb-8">
-          Discover BJJ gyms to train, anywhere in the world.
+          Drop-in friendly gyms, open mats and visitor prices for traveling grapplers.
         </p>
 
         <SearchBar size="lg" className="max-w-[520px]" />
@@ -141,6 +162,37 @@ export default function Home() {
             ))}
           </div>
         </div>
+        {/* Server-rendered overview: the citable answer for search engines and AI assistants */}
+        <section className="w-full max-w-[700px] mt-12 text-left text-text2 text-sm leading-relaxed">
+          <h2 className="text-lg font-bold text-text mb-2">Where to train Brazilian Jiu-Jitsu when you travel</h2>
+          <p className="mb-3">
+            RollMap is a free map of <strong className="text-text">{figures.gyms.toLocaleString("en-US")} Brazilian Jiu-Jitsu gyms</strong> in{" "}
+            {figures.countries} countries and {figures.cities.toLocaleString("en-US")} cities. Search a city or use your location, then
+            filter gyms by <strong className="text-text">Gi</strong>, <strong className="text-text">No-Gi</strong>,{" "}
+            <strong className="text-text">open mat</strong>, <strong className="text-text">drop-in friendly</strong> and{" "}
+            <strong className="text-text">kids classes</strong>.
+          </p>
+          <p className="mb-3">
+            <span className="text-accent font-semibold">{figures.verified} gyms are verified</span>: they confirmed directly to RollMap
+            whether they welcome visitors, their drop-in price and their open mat times. Listings come from federation directories,
+            affiliation networks and the gyms themselves (<a href="/about" className="text-accent hover:underline">how we collect data</a>).
+          </p>
+          <p>
+            Browse <a href="/countries" className="text-accent hover:underline">BJJ gyms by country</a>
+            {guides.length > 0 && (
+              <>
+                {" "}or read our tournament travel guides:{" "}
+                {guides.map((g, i) => (
+                  <span key={g.slug}>
+                    {i > 0 ? ", " : ""}
+                    <a href={`/blog/${g.slug}`} className="text-accent hover:underline">{g.event?.replace(/^the /, "")}</a>
+                  </span>
+                ))}
+              </>
+            )}
+            .
+          </p>
+        </section>
       </main>
     </div>
   );
