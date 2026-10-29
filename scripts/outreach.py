@@ -103,10 +103,11 @@ Je m'appelle Amandine, JJB addict et je voyage souvent. J'ai créé RollMap (htt
 
 {name} y est déjà référencé : {link}
 
-Pour que les voyageurs qui passent par {city} puissent venir rouler chez vous, il me manque 3 infos :
+Pour que les voyageurs qui passent par {city} puissent venir rouler chez vous, il me manque 4 infos :
 1. Acceptez-vous les pratiquants de passage (drop-in) ?
 2. Si oui, à quel tarif, et faut-il prévenir avant ?
 3. Avez-vous un open mat ?
+4. Les cours se donnent en quelle langue ? Un voyageur qui ne parle pas français peut-il suivre ?
 
 Une simple réponse à ce mail suffit, je mets la fiche à jour. Vous pouvez aussi la corriger directement via le bouton "Suggest an edit".
 
@@ -151,10 +152,11 @@ I'm Amandine, a BJJ addict who travels a lot. I built RollMap (https://rollmap.c
 
 {name} is already listed: {link}
 
-So that people visiting {city} can come and roll with you, could you confirm 3 things:
+So that people visiting {city} can come and roll with you, could you confirm 4 things:
 1. Do you welcome visitors / drop-ins?
 2. If so, what's the drop-in price, and should they message you first?
 3. Do you run an open mat?
+4. Which language are classes taught in? Can a visitor who only speaks English follow?
 
 A one-line reply is enough, I'll update your page right away. You can also edit it directly with the "Suggest an edit" button.
 
@@ -188,6 +190,7 @@ To send the right people your way, could you confirm:
 1. Do you welcome visitors / drop-ins during Europeans weeks?
 2. If yes, what's the drop-in price (or week pass), and should they message you first?
 3. Do you run an open mat, or a lighter session for competitors?
+4. Which language are classes taught in? Can a visitor who only speaks English follow?
 
 A one-line reply is enough, I'll update your page right away.
 
