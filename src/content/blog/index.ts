@@ -115,16 +115,16 @@ Oss.
   },
     {
     slug: "ibjjf-europeans-2027-lisbon-where-to-train",
-    title: "IBJJF Europeans 2027 Lisbon: Dates & Where to Train",
+    title: "IBJJF Lisbon 2027: Fees Rise Nov 15, Where to Train",
     description:
-      "European IBJJF Championship 2027: Jan 13–23 in Odivelas, Lisbon. Registration closes Jan 3. All key deadlines + BJJ gyms to train at during your trip.",
+      "Europeans 2027, Jan 13–23 in Odivelas: register before Nov 15 for $173 ($186 after). Key deadlines, schedule + Lisbon gyms with drop-in prices.",
     date: "2026-09-30",
     author: "Amandine",
     readTime: "7 min read",
     cityLinks: ["lisbon", "odivelas"],
     countryLinks: ["portugal"],
     event: "the IBJJF Europeans 2027",
-    updated: "2026-10-14",
+    updated: "2026-11-04",
     eventDetails: {
       name: "European IBJJF Jiu-Jitsu Championship 2027",
       startDate: "2027-01-13",
@@ -157,6 +157,8 @@ If you're competing, or just coming to watch, you'll probably spend a few days i
 
 - **$173** until November 15, 2026
 - **$186** until January 3, 2027
+
+Registering before **November 15** saves you $13.
 
 Fees are only refundable within 48 hours of purchase. If you end up alone in your division, you may get a full refund by withdrawing before the checkday deadline. Registering early is cheaper, and IBJJF recommends completing your registration before booking travel.
 
@@ -198,6 +200,18 @@ Want to keep your timing sharp without getting injured the week of the tournamen
 
 RollMap lists **35+ gyms in Lisbon** and a few right in **Odivelas**, a short ride from the venue. Browse all [BJJ gyms in Lisbon](/city/lisbon), the [gyms in Odivelas](/city/odivelas), or every [BJJ gym in Portugal](/country/portugal). New to training abroad? Read our [drop-in etiquette guide](/blog/drop-in-bjj-etiquette) and our [Lisbon traveler's guide](/blog/bjj-gyms-lisbon-guide).
 
+### Verified by the gym: Carlson Gracie Cascais
+
+[Carlson Gracie Cascais](/club/2918) (Alcabideche, Cascais, west of Lisbon) confirmed its visitor info for Europeans week:
+
+- **Drop-in: €15 per class**, visitors welcome during the Europeans and all year round
+- **Message the gym in advance** to confirm availability and class times
+- No dedicated competition sessions: visitors join the regular classes
+- **Instructors speak English**
+- **Private mat rental for teams**, in the afternoon and subject to availability: **€50/hour** up to 5 people, **€75/hour** for 6–10, **€100/hour** for 11–15
+
+Coming with your team? A private mat is a quiet way to drill your game plan and make weight together, away from the crowded gyms near the venue. Cascais is on the other side of Lisbon from Odivelas, so it works best if you're staying on the coast.
+
 ## Tips for Europeans week
 
 1. **Message gyms early.** During Europeans week, many gyms get a lot of visitors. Send a quick Instagram message a few days before to confirm drop-in and class times.
@@ -229,7 +243,7 @@ Yes, spectator entrance is free.
 
 ### Where can I train in Lisbon during the Europeans?
 
-Check our map of [BJJ gyms in Lisbon](/city/lisbon) and message the gym before you go to confirm drop-in and class times.
+Check our map of [BJJ gyms in Lisbon](/city/lisbon) and message the gym before you go to confirm drop-in and class times. [Carlson Gracie Cascais](/club/2918) has confirmed a €15 drop-in and rents its mat to visiting teams.
 
 Always double-check the [official IBJJF event page](https://ibjjf.com/events/european-ibjjf-jiu-jitsu-championship-2027) before booking: schedules and deadlines can change.
 
