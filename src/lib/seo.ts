@@ -16,7 +16,11 @@ export async function fetchAllRows<T>(
   const rows: T[] = [];
   for (let from = 0; ; from += pageSize) {
     const { data, error } = await build(from, from + pageSize - 1);
-    if (error || !data || data.length === 0) break;
+    // A failed query must not look like "no rows": the page would render a 404
+    // (noindex, HTTP 200 under ISR) and stay cached for hours. Throw instead, so
+    // ISR keeps serving the last good version.
+    if (error) throw new Error(`Supabase query failed: ${JSON.stringify(error)}`);
+    if (!data || data.length === 0) break;
     rows.push(...data);
     if (data.length < pageSize) break;
   }

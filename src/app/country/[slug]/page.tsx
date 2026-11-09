@@ -41,10 +41,11 @@ async function getCountryClubs(slug: string): Promise<Club[]> {
 export async function generateMetadata({ params }: CountryPageProps): Promise<Metadata> {
   const { slug } = await params;
   const country = slugToCountry(slug);
-  const { count } = await supabase
+  const { count, error } = await supabase
     .from("clubs")
     .select("id", { count: "exact", head: true })
     .ilike("country", country);
+  if (error) throw new Error(`Supabase query failed: ${error.message}`);
 
   if (!count) return { title: `BJJ gyms in ${country}` };
 

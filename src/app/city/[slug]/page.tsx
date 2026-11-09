@@ -38,7 +38,8 @@ function pageNumber(raw?: string): number {
 /** A city name can exist in several countries (London UK / London Canada) or carry a wrong
  * country in source data: the page belongs to the country with the most gyms. */
 async function getCityCountry(slug: string): Promise<string | null> {
-  const { data } = await supabase.from("clubs").select("country").ilike("city", slugToCityPattern(slug)).limit(1000);
+  const { data, error } = await supabase.from("clubs").select("country").ilike("city", slugToCityPattern(slug)).limit(1000);
+  if (error) throw new Error(`Supabase query failed: ${error.message}`);
   const counts = new Map<string, number>();
   for (const r of data ?? []) if (r.country) counts.set(r.country, (counts.get(r.country) ?? 0) + 1);
   return [...counts.entries()].sort((a, b) => b[1] - a[1])[0]?.[0] ?? null;
@@ -47,7 +48,8 @@ async function getCityCountry(slug: string): Promise<string | null> {
 async function countClubs(slug: string, country: string | null): Promise<number> {
   let q = supabase.from("clubs").select("id", { count: "exact", head: true }).ilike("city", slugToCityPattern(slug));
   if (country) q = q.eq("country", country);
-  const { count } = await q;
+  const { count, error } = await q;
+  if (error) throw new Error(`Supabase query failed: ${error.message}`);
   return count ?? 0;
 }
 
@@ -91,7 +93,8 @@ export default async function CityPage({ params, searchParams }: CityPageProps) 
     .order("name")
     .range((page - 1) * PAGE_SIZE, page * PAGE_SIZE - 1);
 
-  if (error || !data || data.length === 0) notFound();
+  if (error) throw new Error(`Supabase query failed: ${error.message}`);
+  if (!data || data.length === 0) notFound();
 
   const clubs = data as Club[];
   const city = clubs[0]?.city || slugToCity(slug);

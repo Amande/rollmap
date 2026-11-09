@@ -62,7 +62,9 @@ export default async function ClubPage({ params }: ClubPageProps) {
     .eq("id", Number(id))
     .single();
 
-  if (error || !data) {
+  // PGRST116 = no row for this id (real 404); any other error is transient: throw
+  if (error && error.code !== "PGRST116") throw new Error(`Supabase query failed: ${error.message}`);
+  if (!data) {
     notFound();
   }
 
