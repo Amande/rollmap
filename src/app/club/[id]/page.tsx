@@ -4,6 +4,7 @@ import ClubDetail from "@/components/ClubDetail";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
+import { cache } from "react";
 import { clubTitle, countryToSlug, cityToSlug, isIndexableClub, prettyName, SITE_URL } from "@/lib/seo";
 
 // Rebuilt at most every 6 hours (ISR); IndexNow pings on updates
@@ -14,6 +15,15 @@ export function generateStaticParams() {
   return [];
 }
 
+// One Supabase query per render, shared by generateMetadata and the page.
+// PGRST116 = no row for this id (real 404 → null); any other error is transient:
+// throw, so ISR keeps serving the last good version instead of caching a 404.
+const getClub = cache(async (id: string): Promise<Club | null> => {
+  const { data, error } = await supabase.from("clubs").select("*").eq("id", Number(id)).single();
+  if (error && error.code !== "PGRST116") throw new Error(`Supabase query failed: ${error.message}`);
+  return (data as Club | null) ?? null;
+});
+
 interface ClubPageProps {
   params: Promise<{ id: string }>;
 }
@@ -22,11 +32,7 @@ export async function generateMetadata({
   params,
 }: ClubPageProps): Promise<Metadata> {
   const { id } = await params;
-  const { data } = await supabase
-    .from("clubs")
-    .select("name, city, country, website, instagram, phone, email, schedule_notes, drop_in_price")
-    .eq("id", Number(id))
-    .single();
+  const data = await getClub(id);
 
   if (!data) {
     return { title: "Club not found — RollMap" };
@@ -56,19 +62,10 @@ export async function generateMetadata({
 
 export default async function ClubPage({ params }: ClubPageProps) {
   const { id } = await params;
-  const { data, error } = await supabase
-    .from("clubs")
-    .select("*")
-    .eq("id", Number(id))
-    .single();
-
-  // PGRST116 = no row for this id (real 404); any other error is transient: throw
-  if (error && error.code !== "PGRST116") throw new Error(`Supabase query failed: ${error.message}`);
-  if (!data) {
+  const club = await getClub(id);
+  if (!club) {
     notFound();
   }
-
-  const club = data as Club;
 
   // JSON-LD structured data (only facts visible on the page)
   const website = club.website ? (club.website.startsWith("http") ? club.website : `https://${club.website}`) : null;
