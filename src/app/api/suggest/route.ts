@@ -1,9 +1,12 @@
 import { createClient } from "@supabase/supabase-js";
 import { NextRequest, NextResponse } from "next/server";
+import { fetchWithTimeout } from "@/lib/supabase";
 
+// Same 8s server timeout as the shared client: no hanging (billed) function if Supabase stalls
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
+  process.env.SUPABASE_SERVICE_ROLE_KEY!,
+  { global: { fetch: fetchWithTimeout } }
 );
 
 const ALLOWED_BOOLEAN_FIELDS = [

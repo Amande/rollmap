@@ -9,7 +9,7 @@ const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 // last good version. Browser calls (map, search) keep no limit for slow mobiles.
 const SERVER_TIMEOUT_MS = 8000;
 
-const fetchWithTimeout: typeof fetch = (input, init) => {
+export const fetchWithTimeout: typeof fetch = (input, init) => {
   const timeout = AbortSignal.timeout(SERVER_TIMEOUT_MS);
   const signal = init?.signal ? AbortSignal.any([init.signal, timeout]) : timeout;
   return fetch(input, { ...init, signal });
