@@ -6,9 +6,9 @@ import { getPlaceStats, countryToSlug, SITE_URL } from "@/lib/seo";
 export const revalidate = 86400;
 
 export const metadata: Metadata = {
-  title: "BJJ gyms by country",
+  title: "BJJ Gym Finder: Jiu-Jitsu Gyms by Country",
   description:
-    "Browse Brazilian Jiu-Jitsu gyms in every country listed on RollMap, with the number of clubs and cities per country.",
+    "Free BJJ gym finder: browse Brazilian Jiu-Jitsu gyms in every country listed on RollMap, with the number of clubs and cities per country.",
   alternates: { canonical: "/countries" },
 };
 

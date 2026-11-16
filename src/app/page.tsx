@@ -3,7 +3,7 @@ import SearchBar from "@/components/SearchBar";
 import NearMeButton from "@/components/NearMeButton";
 import LandingMap from "./LandingMap";
 import { CONTACT_EMAIL, INSTAGRAM_URL } from "@/lib/contact";
-import { getPlaceStats } from "@/lib/seo";
+import { getPlaceStats, prettyName } from "@/lib/seo";
 import { supabase } from "@/lib/supabase";
 import { getAllPosts } from "@/content/blog";
 
@@ -12,9 +12,9 @@ export const revalidate = 86400;
 
 export const metadata: Metadata = {
   // Absolute: the brand is already in the title, no " | RollMap" suffix
-  title: { absolute: "BJJ Gyms Worldwide: Drop-ins & Open Mats | RollMap" },
+  title: { absolute: "BJJ Gyms Near Me: Drop-ins & Open Mats Worldwide | RollMap" },
   description:
-    "Find 10,000+ Brazilian Jiu-Jitsu gyms in 114 countries: drop-in friendly gyms, open mats, Gi & No-Gi and visitor prices confirmed by the gyms.",
+    "Find Brazilian Jiu-Jitsu classes near you: 10,000+ BJJ gyms in 114 countries, with drop-in prices and open mats confirmed by the gyms. Free gym finder.",
   alternates: { canonical: "/" },
 };
 
@@ -25,6 +25,21 @@ async function getHomeFigures() {
   ]);
   const gyms = [...countries.values()].reduce((s, c) => s + c.count, 0);
   return { gyms, countries: countries.size, cities: cities.size, verified: verified.count ?? 0 };
+}
+
+// Latest gyms verified by RollMap: fresh, rich pages linked from the home page.
+async function getRecentlyVerified(): Promise<{ id: number; name: string; city: string | null }[]> {
+  try {
+    const { data, error } = await supabase
+      .from("clubs")
+      .select("id, name, city")
+      .eq("verified", true)
+      .order("updated_at", { ascending: false })
+      .limit(8);
+    return error || !data ? [] : data;
+  } catch {
+    return [];
+  }
 }
 
 const jsonLd = [
@@ -79,7 +94,7 @@ const POPULAR_COUNTRIES = [
 ];
 
 export default async function Home() {
-  const figures = await getHomeFigures();
+  const [figures, recentlyVerified] = await Promise.all([getHomeFigures(), getRecentlyVerified()]);
   const guides = getAllPosts().filter((p) => p.event).slice(0, 3);
   return (
     <div className="min-h-screen flex flex-col">
@@ -104,7 +119,7 @@ export default async function Home() {
       {/* Hero */}
       <main className="flex-1 flex flex-col items-center justify-center px-5 py-10 text-center">
         <h1 className="text-4xl sm:text-5xl font-extrabold leading-tight tracking-tight mb-2">
-          Find BJJ gyms to train, <span className="text-accent">anywhere</span>.
+          Find BJJ gyms near you, <span className="text-accent">anywhere</span>.
         </h1>
         <p className="text-text2 text-lg mb-8">
           Drop-in friendly gyms, open mats and visitor prices for traveling grapplers.
@@ -162,6 +177,26 @@ export default async function Home() {
             ))}
           </div>
         </div>
+        {/* Recently verified gyms */}
+        {recentlyVerified.length > 0 && (
+          <div className="w-full max-w-[700px] mt-5">
+            <h2 className="text-xs font-bold text-text3 uppercase tracking-widest mb-3">
+              Recently verified gyms
+            </h2>
+            <div className="flex gap-2.5 flex-wrap justify-center">
+              {recentlyVerified.map((c) => (
+                <a
+                  key={c.id}
+                  href={`/club/${c.id}`}
+                  className="bg-bg3 text-text2 px-3.5 py-1.5 rounded-full text-xs cursor-pointer transition-all border border-transparent hover:border-accent hover:text-accent"
+                >
+                  {prettyName(c.name)}
+                  {c.city && <span className="text-text3"> · {c.city}</span>}
+                </a>
+              ))}
+            </div>
+          </div>
+        )}
         {/* Server-rendered overview: the citable answer for search engines and AI assistants */}
         <section className="w-full max-w-[700px] mt-12 text-left text-text2 text-sm leading-relaxed">
           <h2 className="text-lg font-bold text-text mb-2">Where to train Brazilian Jiu-Jitsu when you travel</h2>
@@ -191,6 +226,12 @@ export default async function Home() {
               </>
             )}
             .
+          </p>
+          <h2 className="text-lg font-bold text-text mt-6 mb-2">Brazilian Jiu-Jitsu classes near me</h2>
+          <p>
+            Tap <strong className="text-text">Clubs near me</strong> above to see the BJJ gyms closest to you on the map, or search
+            a city. Each gym page shows the address, contact, Gi or No-Gi classes and, for verified gyms, whether you can drop in and
+            how much it costs. RollMap is a free BJJ gym finder: no account needed.
           </p>
         </section>
       </main>
