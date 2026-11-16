@@ -24,6 +24,30 @@ const getClub = cache(async (id: string): Promise<Club | null> => {
   return (data as Club | null) ?? null;
 });
 
+// Other gyms in the same city: internal links so crawlers (and visitors) reach
+// sibling pages from every club page. Verified first, then gyms with contact info.
+// Never blocks the page: on error, the section is simply not rendered.
+type SiblingClub = Pick<Club, "id" | "name" | "verified" | "drop_in_price" | "website" | "instagram" | "phone" | "email" | "schedule_notes">;
+
+async function getSiblingClubs(club: Club): Promise<SiblingClub[]> {
+  if (!club.city) return [];
+  try {
+    let q = supabase
+      .from("clubs")
+      .select("id, name, verified, drop_in_price, website, instagram, phone, email, schedule_notes")
+      .eq("city", club.city)
+      .neq("id", club.id)
+      .order("verified", { ascending: false })
+      .limit(40);
+    if (club.country) q = q.eq("country", club.country);
+    const { data, error } = await q;
+    if (error || !data) return [];
+    return (data as SiblingClub[]).filter(isIndexableClub).slice(0, 6);
+  } catch {
+    return [];
+  }
+}
+
 interface ClubPageProps {
   params: Promise<{ id: string }>;
 }
@@ -66,6 +90,7 @@ export default async function ClubPage({ params }: ClubPageProps) {
   if (!club) {
     notFound();
   }
+  const siblings = await getSiblingClubs(club);
 
   // JSON-LD structured data (only facts visible on the page)
   const website = club.website ? (club.website.startsWith("http") ? club.website : `https://${club.website}`) : null;
@@ -157,6 +182,27 @@ export default async function ClubPage({ params }: ClubPageProps) {
       {/* Content */}
       <main className="flex-1">
         <ClubDetail club={club} />
+        {siblings.length > 0 && club.city && (
+          <section className="px-5 pb-8 max-w-[700px]">
+            <h2 className="text-xs font-bold text-text3 uppercase tracking-widest mb-3">
+              More BJJ gyms in {club.city}
+            </h2>
+            <ul className="flex flex-col gap-2 text-sm">
+              {siblings.map((s) => (
+                <li key={s.id}>
+                  <Link href={`/club/${s.id}`} className="text-accent hover:underline">
+                    {prettyName(s.name)}
+                  </Link>
+                  {s.verified && <span className="text-text3"> · verified</span>}
+                  {s.drop_in_price && <span className="text-text3"> · drop-in {s.drop_in_price}</span>}
+                </li>
+              ))}
+            </ul>
+            <Link href={`/city/${cityToSlug(club.city)}`} className="inline-block mt-3 text-xs text-accent hover:underline">
+              All gyms in {club.city} &rarr;
+            </Link>
+          </section>
+        )}
       </main>
     </div>
   );
