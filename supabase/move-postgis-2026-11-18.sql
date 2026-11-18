@@ -11,6 +11,21 @@ DROP FUNCTION IF EXISTS public.nearby_clubs(double precision, double precision, 
 DROP INDEX IF EXISTS public.clubs_location_idx;
 ALTER TABLE public.clubs DROP COLUMN IF EXISTS location;
 
+-- Tables de sauvegarde (clubs_backup_*, clubs_removed...) : leurs colonnes PostGIS sont
+-- recalculables depuis lat/lng, qu'elles conservent. On retire toute colonne geography/geometry
+-- restante dans public pour que PostGIS puisse etre deplace.
+DO $$
+DECLARE c record;
+BEGIN
+  FOR c IN
+    SELECT table_name, column_name FROM information_schema.columns
+    WHERE table_schema = 'public' AND udt_name IN ('geography', 'geometry')
+  LOOP
+    EXECUTE format('ALTER TABLE public.%I DROP COLUMN %I', c.table_name, c.column_name);
+    RAISE NOTICE 'Colonne retiree : %.%', c.table_name, c.column_name;
+  END LOOP;
+END $$;
+
 -- 2. Reinstaller PostGIS dans le schema "extensions" (non expose par l'API)
 CREATE SCHEMA IF NOT EXISTS extensions;
 DROP EXTENSION IF EXISTS postgis;            -- sans CASCADE : echoue proprement s'il reste une dependance
