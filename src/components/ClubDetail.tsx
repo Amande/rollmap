@@ -327,6 +327,7 @@ export default function ClubDetail({ club: initialClub }: ClubDetailProps) {
                   {club.phone && (
                     <a
                       href={`tel:${club.phone}`}
+                      rel="nofollow"
                       onClick={() => trackClubClick(club.id, "phone")}
                       className="flex items-center gap-3 text-sm text-text hover:text-accent transition-colors group"
                     >

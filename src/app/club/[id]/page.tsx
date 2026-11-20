@@ -16,11 +16,16 @@ export function generateStaticParams() {
 }
 
 // One Supabase query per render, shared by generateMetadata and the page.
-// PGRST116 = no row for this id (real 404 → null); any other error is transient:
-// throw, so ISR keeps serving the last good version instead of caching a 404.
-const getClub = cache(async (id: string): Promise<Club | null> => {
-  const { data, error } = await supabase.from("clubs").select("*").eq("id", Number(id)).single();
-  if (error && error.code !== "PGRST116") throw new Error(`Supabase query failed: ${error.message}`);
+// Ids that aren't positive integers (e.g. /club/tel:0782944216 from bots or
+// mangled links) are a 404 without touching Supabase. No row → null (404);
+// any other error is transient: throw, so ISR keeps serving the last good
+// version instead of caching a 404.
+const getClub = cache(async (rawId: string): Promise<Club | null> => {
+  if (!/^[1-9]\d*$/.test(rawId)) return null;
+  const id = Number(rawId);
+  if (!Number.isSafeInteger(id)) return null;
+  const { data, error } = await supabase.from("clubs").select("*").eq("id", id).maybeSingle();
+  if (error) throw new Error(`Supabase query failed: ${error.message}`);
   return (data as Club | null) ?? null;
 });
 
@@ -58,9 +63,7 @@ export async function generateMetadata({
   const { id } = await params;
   const data = await getClub(id);
 
-  if (!data) {
-    return { title: "Club not found — RollMap" };
-  }
+  if (!data) return {};
 
   const name = prettyName(data.name);
   const place = [data.city, data.country].filter(Boolean).join(", ");

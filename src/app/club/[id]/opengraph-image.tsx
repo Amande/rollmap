@@ -4,10 +4,21 @@ import { ogCard, OG_SIZE } from "@/lib/og";
 
 export const size = OG_SIZE;
 export const contentType = "image/png";
+
+// Cached like the page it illustrates (ISR) instead of re-rendered on every crawler hit
+export const revalidate = 21600;
+
+export function generateStaticParams() {
+  return [];
+}
 export const alt = "BJJ gym on RollMap";
 
 export default async function Image({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
+  // Same guard as the page: /club/tel:… must not reach Supabase
+  if (!/^[1-9]\d*$/.test(id) || !Number.isSafeInteger(Number(id))) {
+    return ogCard({ kicker: "BJJ gym", title: "Find a place to roll, anywhere" });
+  }
   const { data } = await supabase
     .from("clubs")
     .select("name, city, country, verified, drop_in, drop_in_price, open_mat, gi, nogi")
