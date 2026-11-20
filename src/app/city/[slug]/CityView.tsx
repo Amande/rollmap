@@ -7,16 +7,13 @@ import CityContent from "./CityContent";
 import { getEventPostsForCity } from "@/content/blog";
 import { countryToSlug, MIN_CLUBS_INDEXABLE_CITY, SITE_URL } from "@/lib/seo";
 import { prettyName } from "@/lib/names";
+import { cache } from "react";
 
-// Rebuilt at most every 6 hours (ISR)
-export const revalidate = 21600;
+// Shared by /city/[slug] (page 1) and /city/[slug]/page/[n] (pages 2+).
+// Pagination lives in the path, not in ?page=, so both routes stay ISR:
+// reading searchParams would force a serverless render on every visit.
 
 const PAGE_SIZE = 150;
-
-interface CityPageProps {
-  params: Promise<{ slug: string }>;
-  searchParams: Promise<{ page?: string }>;
-}
 
 function slugToCity(slug: string): string {
   return decodeURIComponent(slug)
@@ -30,32 +27,29 @@ function slugToCityPattern(slug: string): string {
   return decodeURIComponent(slug).replace(/-/g, "_");
 }
 
-function pageNumber(raw?: string): number {
-  const n = Number(raw);
-  return Number.isInteger(n) && n > 1 ? n : 1;
+export function cityPageHref(slug: string, n: number): string {
+  return n === 1 ? `/city/${slug}` : `/city/${slug}/page/${n}`;
 }
 
 /** A city name can exist in several countries (London UK / London Canada) or carry a wrong
  * country in source data: the page belongs to the country with the most gyms. */
-async function getCityCountry(slug: string): Promise<string | null> {
+const getCityCountry = cache(async (slug: string): Promise<string | null> => {
   const { data, error } = await supabase.from("clubs").select("country").ilike("city", slugToCityPattern(slug)).limit(1000);
   if (error) throw new Error(`Supabase query failed: ${error.message}`);
   const counts = new Map<string, number>();
   for (const r of data ?? []) if (r.country) counts.set(r.country, (counts.get(r.country) ?? 0) + 1);
   return [...counts.entries()].sort((a, b) => b[1] - a[1])[0]?.[0] ?? null;
-}
+});
 
-async function countClubs(slug: string, country: string | null): Promise<number> {
+const countClubs = cache(async (slug: string, country: string | null): Promise<number> => {
   let q = supabase.from("clubs").select("id", { count: "exact", head: true }).ilike("city", slugToCityPattern(slug));
   if (country) q = q.eq("country", country);
   const { count, error } = await q;
   if (error) throw new Error(`Supabase query failed: ${error.message}`);
   return count ?? 0;
-}
+});
 
-export async function generateMetadata({ params, searchParams }: CityPageProps): Promise<Metadata> {
-  const { slug } = await params;
-  const page = pageNumber((await searchParams).page);
+export async function cityMetadata(slug: string, page: number): Promise<Metadata> {
   const country = await getCityCountry(slug);
   const count = await countClubs(slug, country);
   if (!count) return { title: `BJJ gyms in ${slugToCity(slug)}` };
@@ -72,15 +66,13 @@ export async function generateMetadata({ params, searchParams }: CityPageProps):
     title,
     description,
     openGraph: { title: `${title} | RollMap`, description, type: "website" },
-    alternates: { canonical: page > 1 ? `/city/${slug}?page=${page}` : `/city/${slug}` },
+    alternates: { canonical: cityPageHref(slug, page) },
     // Single-gym cities are thin pages: reachable, but kept out of the index
     robots: count < MIN_CLUBS_INDEXABLE_CITY ? { index: false, follow: true } : { index: true, follow: true },
   };
 }
 
-export default async function CityPage({ params, searchParams }: CityPageProps) {
-  const { slug } = await params;
-  const page = pageNumber((await searchParams).page);
+export default async function CityView({ slug, page }: { slug: string; page: number }) {
   const mainCountry = await getCityCountry(slug);
   const total = await countClubs(slug, mainCountry);
   const pages = Math.max(1, Math.ceil(total / PAGE_SIZE));
@@ -235,7 +227,7 @@ export default async function CityPage({ params, searchParams }: CityPageProps) 
           {Array.from({ length: pages }, (_, i) => i + 1).map((n) => (
             <Link
               key={n}
-              href={n === 1 ? `/city/${slug}` : `/city/${slug}?page=${n}`}
+              href={cityPageHref(slug, n)}
               aria-current={n === page ? "page" : undefined}
               className={`px-3 py-1.5 rounded-lg text-sm font-semibold border ${
                 n === page ? "bg-accent text-bg border-accent" : "bg-bg2 text-text2 border-bg3 hover:border-accent"

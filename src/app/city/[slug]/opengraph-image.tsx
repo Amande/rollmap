@@ -3,6 +3,13 @@ import { ogCard, OG_SIZE } from "@/lib/og";
 
 export const size = OG_SIZE;
 export const contentType = "image/png";
+
+// Cached like the page it illustrates (ISR) instead of re-rendered on every crawler hit
+export const revalidate = 21600;
+
+export function generateStaticParams() {
+  return [];
+}
 export const alt = "BJJ gyms in this city on RollMap";
 
 export default async function Image({ params }: { params: Promise<{ slug: string }> }) {
